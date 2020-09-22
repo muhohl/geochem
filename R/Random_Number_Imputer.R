@@ -1,16 +1,20 @@
-# Random Number Imputer
-# Function that imputes a random number below the detection limit.
-
+#' Impute Random Numbers
+#'
+#' Impute a random number below the detection limit.
+#'
+#' @param data
+#' @param columns
+#' @param split_symbol
+#' @param digits
+#'
+#' @return data
+#' @export
+#'
+#' @examples
 Random_Number_Imputer <- function(data,
                                   columns,
                                   split_symbol = "<",
                                   digits = 6) {
-    require(purrr)
-    require(stringr)
-    require(tibble)
-    require(dplyr)
-    require(magrittr)
-
 
     laser_data <- data[columns]
     laser_split <- tibble::tibble(1:nrow(laser_data),

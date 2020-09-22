@@ -1,16 +1,25 @@
 Package: geochem
-Title: What the Package Does (One Line, Title Case)
+Title: Wrangling, Analysing, And Visualization Of Geochemical Data
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Max",
+           family = "Hohl",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+           email = "max.hohl@utas.edu.au",
+           comment = c(ORCID = "https://orcid.org/0000-0003-1167-541X"))
+Description: Helps to wrangle and analyse geochemical data. Most useful for working with Laser-ICP-MS data. Includes functions for plotting Laser Maps and XMOD data.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+Suggests: 
+    testthat
+Imports: 
+    magrittr,
+    dplyr,
+    ggplot2,
+    stats,
+    purrr,
+    stringr,
+    tibble
