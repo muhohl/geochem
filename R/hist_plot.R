@@ -1,4 +1,4 @@
-#' hist_plot
+#' Histograms for all selected columns
 #'
 #' @param data
 #' @param x_axis
