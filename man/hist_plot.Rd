@@ -2,7 +2,7 @@
 % Please edit documentation in R/hist_plot.R
 \name{hist_plot}
 \alias{hist_plot}
-\title{hist_plot}
+\title{Histograms for all selected columns}
 \usage{
 hist_plot(data, x_axis, bins)
 }
@@ -13,5 +13,5 @@ hist_plot(data, x_axis, bins)
 ggplot objects
 }
 \description{
-hist_plot
+Histograms for all selected columns
 }
