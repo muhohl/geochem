@@ -9,7 +9,7 @@
 
 \! Developement of this package has just begun \!
 
-The goal of geochem is analyse and wrangle geochemical data sets more
+The goal of geochem is to analyse and wrangle geochemical data sets more
 efficiently with the help of R. Most geochemical datasets contain
 elements as variables and only a few categorical variable. Geochems aim
 is it to make looking at those different elements in a more consistend

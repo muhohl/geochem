@@ -3,3 +3,5 @@
 export(Random_Number_Imputer)
 export(hist_plot)
 export(mgt_class_D_B)
+export(xmod_df_wrangler)
+export(xmod_samples_list)
