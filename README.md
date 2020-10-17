@@ -65,3 +65,16 @@ You can also embed plots, for example:
 
 In that case, don’t forget to commit and push the resulting figure
 files, so they display on GitHub\!
+
+### Laser Maps
+
+TODO Write instructions for the laser maps function\!
+
+1.  Load the files / Create a random laser map data frame
+2.  Select the elements
+3.  Create a Log\_Trans tibble
+4.  Use the clipping function
+5.  Clip the data set
+6.  Create list with plots
+7.  Plot the list with plots
+8.  Save the plot
