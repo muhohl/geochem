@@ -71,10 +71,17 @@ files, so they display on GitHub\!
 TODO Write instructions for the laser maps function\!
 
 1.  Load the files / Create a random laser map data frame
+
 2.  Select the elements
+
 3.  Create a Log\_Trans tibble
+
 4.  Use the clipping function
+
 5.  Clip the data set
+
 6.  Create list with plots
+
 7.  Plot the list with plots
+
 8.  Save the plot

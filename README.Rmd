@@ -69,10 +69,43 @@ In that case, don't forget to commit and push the resulting figure files, so the
 TODO Write instructions for the laser maps function!
 
 1. Load the files / Create a random laser map data frame
+
+```{r}
+
+```
+
 2. Select the elements
+```{r}
+
+```
+
 3. Create a Log_Trans tibble
+```{r}
+
+```
+
 4. Use the clipping function 
+```{r}
+
+```
+
 5. Clip the data set
+```{r}
+
+```
+
 6. Create list with plots
+```{r}
+
+```
+
 7. Plot the list with plots
+```{r}
+
+```
+
 8. Save the plot 
+```{r}
+
+```
+

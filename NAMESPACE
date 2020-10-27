@@ -3,6 +3,7 @@
 export(Random_Number_Imputer)
 export(clipping_element)
 export(double_values_checker)
+export(eigen_value_plot)
 export(hist_plot)
 export(laser_map)
 export(mgt_class_D_B)
