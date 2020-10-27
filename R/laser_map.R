@@ -78,6 +78,7 @@ laser_map <- function(data,
             ggplot2::geom_raster(interpolate = TRUE) +
             ggplot2::theme_bw() +
             ggplot2::theme(panel.border = ggplot2::element_blank()) +
+            ggplot2::coord_fixed(ratio = 1) +
                   #aspect.ratio = 1) +
             ggplot2::scale_y_discrete(expand = c(0,0)) +
             ggplot2::scale_x_discrete(expand = c(0,0)) +
