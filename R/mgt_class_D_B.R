@@ -2,12 +2,25 @@
 #'
 #'
 #'
+#' @param labels
+#' If TRUE labels are drawn.
+#' @param fields
+#' If TRUE black lines around the fields are drawn.
+#' @param color_fill
+#' If TRUE the different fields are colored.
+#' @param scales
+#' If TRUE axis labes and the axis are log transformed. Set to FALSE if the
+#' function is called multiple times to avoid Warning message.
+#'
 #' @return ggplot object
 #' @export
 #'
 #' @examples
 #'
-mgt_class_D_B <- function() {
+mgt_class_D_B <- function(labels = TRUE,
+                          fields = TRUE,
+                          color_fill = TRUE,
+                          scales = TRUE) {
 
     Skarn <- tibble::tibble(x = c(0.005, 1.5, 1.25, 0.38, 0.145,
                                   0.085, 0.047, 0.047, 0.005),
@@ -24,28 +37,80 @@ mgt_class_D_B <- function() {
     FeTiV <- tibble::tibble(x = c(1.5, 20, 20, 0.55, 0.9, 1.25),
                             y = c(3, 3, 0.01, 0.01, 0.135, 0.95))
 
-    mgt_class_template <- list(
-        ggplot2::geom_polygon(data = Skarn, ggplot2::aes(x, y), fill = "green",
-                              alpha = 0.1, color = "black"),
-        ggplot2::geom_polygon(data = Porphyry, ggplot2::aes(x, y), fill = "blue",
-                              alpha = 0.1, color= "black"),
-        ggplot2::geom_polygon(data = Kiruna, ggplot2::aes(x, y), fill = "yellow",
-                              alpha = 0.1, color = "black"),
-        ggplot2::geom_polygon(data = IOCG, ggplot2::aes(x, y), fill = "orange",
-                              alpha = 0.1, color = "black"),
-        ggplot2::geom_polygon(data = BIF, ggplot2::aes(x, y), fill = "red",
-                              alpha = 0.1, color = "black"),
-        ggplot2::geom_polygon(data = FeTiV, ggplot2::aes(x, y), fill = "sienna",
-                              alpha = 0.1, color = "black"),
-        ggplot2::annotate("text", x = 0.01, y = 2, label = "Skarn"),
-        ggplot2::annotate("text", x = 5, y = 2, label = "Fe-Ti, V"),
-        ggplot2::annotate("text", x = 0.02, y = 0.1, label = "BIF"),
-        ggplot2::annotate("text", x = 0.1, y = 0.3, label = "IOCG"),
-        ggplot2::annotate("text", x = 0.55, y = 0.2, label = "Porphyry"),
-        ggplot2::annotate("text", x = 0.55, y = 0.12, label = "Kiruna"),
-        ggplot2::scale_x_log10(),
-        ggplot2::scale_y_log10(),
-        ggplot2::labs(x = "Ti + V (wt%)", y = "Al + Mn (wt%)"))
+    mgt_class_template <- list()
+    if (fields & color_fill) {
+        mgt_class_template <- append(mgt_class_template, list(
+            ggplot2::geom_polygon(data = Skarn, ggplot2::aes(x, y), fill = "green",
+                                  alpha = 0.1, color = "black"),
+            ggplot2::geom_polygon(data = Porphyry, ggplot2::aes(x, y), fill = "blue",
+                                  alpha = 0.1, color= "black"),
+            ggplot2::geom_polygon(data = Kiruna, ggplot2::aes(x, y), fill = "yellow",
+                                  alpha = 0.1, color = "black"),
+            ggplot2::geom_polygon(data = IOCG, ggplot2::aes(x, y), fill = "orange",
+                                  alpha = 0.1, color = "black"),
+            ggplot2::geom_polygon(data = BIF, ggplot2::aes(x, y), fill = "red",
+                                  alpha = 0.1, color = "black"),
+            ggplot2::geom_polygon(data = FeTiV, ggplot2::aes(x, y), fill = "sienna",
+                                  alpha = 0.1, color = "black")
+            )
+        )
+    }
+
+    else if (!color_fill & fields) {
+        mgt_class_template <- append(mgt_class_template, list(
+            ggplot2::geom_polygon(data = Skarn, ggplot2::aes(x, y),
+                                  alpha = 0.1, color = "black"),
+            ggplot2::geom_polygon(data = Porphyry, ggplot2::aes(x, y),
+                                  alpha = 0.1, color= "black"),
+            ggplot2::geom_polygon(data = Kiruna, ggplot2::aes(x, y),
+                                  alpha = 0.1, color = "black"),
+            ggplot2::geom_polygon(data = IOCG, ggplot2::aes(x, y),
+                                  alpha = 0.1, color = "black"),
+            ggplot2::geom_polygon(data = BIF, ggplot2::aes(x, y),
+                                  alpha = 0.1, color = "black"),
+            ggplot2::geom_polygon(data = FeTiV, ggplot2::aes(x, y),
+                                  alpha = 0.1, color = "black")
+            )
+        )
+    }
+
+    else if (color_fill & !fields) {
+        mgt_class_template <- append(mgt_class_template, list(
+            ggplot2::geom_polygon(data = Skarn, ggplot2::aes(x, y), fill = "green",
+                                  alpha = 0.1),
+            ggplot2::geom_polygon(data = Porphyry, ggplot2::aes(x, y), fill = "blue",
+                                  alpha = 0.1),
+            ggplot2::geom_polygon(data = Kiruna, ggplot2::aes(x, y), fill = "yellow",
+                                  alpha = 0.1),
+            ggplot2::geom_polygon(data = IOCG, ggplot2::aes(x, y), fill = "orange",
+                                  alpha = 0.1),
+            ggplot2::geom_polygon(data = BIF, ggplot2::aes(x, y), fill = "red",
+                                  alpha = 0.1),
+            ggplot2::geom_polygon(data = FeTiV, ggplot2::aes(x, y), fill = "sienna",
+                                  alpha = 0.1)
+            )
+        )
+    }
+
+    if (labels) {
+        mgt_class_template <- append(mgt_class_template, list(
+            ggplot2::annotate("text", x = 0.01, y = 2, label = "Skarn"),
+            ggplot2::annotate("text", x = 5, y = 2, label = "Fe-Ti, V"),
+            ggplot2::annotate("text", x = 0.02, y = 0.1, label = "BIF"),
+            ggplot2::annotate("text", x = 0.1, y = 0.3, label = "IOCG"),
+            ggplot2::annotate("text", x = 0.55, y = 0.2, label = "Porphyry"),
+            ggplot2::annotate("text", x = 0.55, y = 0.12, label = "Kiruna")
+            )
+        )
+    }
+    if (scales) {
+        mgt_class_template <- append(mgt_class_template, list(
+            ggplot2::scale_x_log10(),
+            ggplot2::scale_y_log10(),
+            ggplot2::labs(x = "Ti + V (wt%)", y = "Al + Mn (wt%)")
+            )
+        )
+    }
 
     return(mgt_class_template)
 }

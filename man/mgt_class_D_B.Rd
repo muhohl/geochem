@@ -4,7 +4,17 @@
 \alias{mgt_class_D_B}
 \title{Magnetite Classification Template after Dupuis&Beaudoin}
 \usage{
-mgt_class_D_B()
+mgt_class_D_B(labels = TRUE, fields = TRUE, color_fill = TRUE, scales = TRUE)
+}
+\arguments{
+\item{labels}{If TRUE labels are drawn.}
+
+\item{fields}{If TRUE black lines around the fields are drawn.}
+
+\item{color_fill}{If TRUE the different fields are colored.}
+
+\item{scales}{If TRUE axis labes and the axis are log transformed. Set to FALSE if the
+function is called multiple times to avoid Warning message.}
 }
 \value{
 ggplot object
