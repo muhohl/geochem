@@ -22,6 +22,8 @@
 #' @export
 #'
 #' @examples
+#'
+#' @import magrittr
 spider_plot <- function(data,
                         elements,
                         group,
@@ -96,8 +98,8 @@ spider_plot <- function(data,
                       size = 2.5) +
             ggplot2::facet_wrap(quo_group, ncol = ncol) +
             ggplot2::scale_y_log10(labels = prettyNum) +
-            ggplot2::scale_fill_viridis(discrete = TRUE) +
-            ggplot2::scale_color_viridis(discrete = TRUE) +
+            viridis::scale_fill_viridis(discrete = TRUE) +
+            viridis::scale_color_viridis(discrete = TRUE) +
             ggplot2::theme_dark() +
             ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) +
             ggplot2::labs(x = "")
@@ -130,8 +132,8 @@ spider_plot <- function(data,
                       size = 2) +
             ggplot2::facet_wrap(quo_group, ncol = ncol) +
             ggplot2::scale_y_log10(labels = prettyNum) +
-            ggplot2::scale_fill_viridis(discrete = TRUE) +
-            ggplot2::scale_color_viridis(discrete = TRUE) +
+            viridis::scale_fill_viridis(discrete = TRUE) +
+            viridis::scale_color_viridis(discrete = TRUE) +
             ggplot2::theme_dark() +
             ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) +
             ggplot2::labs(x = "", y = "")

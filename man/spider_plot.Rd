@@ -35,3 +35,6 @@ single lines for those samples are plotted.}
 Produces spider plots highlighting different groups per facet and compares them
 to the remaining groups.
 }
+\examples{
+
+}
