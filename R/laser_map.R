@@ -27,6 +27,7 @@
 #'
 #' @examples
 #'
+#' @import magrittr
 laser_map <- function(data,
                      selected_elements,
                      Log_Trans = FALSE,

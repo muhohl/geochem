@@ -22,3 +22,6 @@ name of a column in the data frame.}
 \description{
 Each element is a single plot of grouped boxplots.
 }
+\examples{
+
+}

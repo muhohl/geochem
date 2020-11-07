@@ -10,7 +10,8 @@ spider_plot(
   group,
   levels = elements,
   ribbon = TRUE,
-  ncol = NULL
+  ncol = NULL,
+  ...
 )
 }
 \arguments{
@@ -34,4 +35,7 @@ single lines for those samples are plotted.}
 \description{
 Produces spider plots highlighting different groups per facet and compares them
 to the remaining groups.
+}
+\examples{
+
 }

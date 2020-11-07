@@ -13,6 +13,8 @@
 #' @export
 #'
 #' @examples
+#' @import magrittr
+#'
 clipping_element <- function(elmnt,
                              data) {
 
@@ -31,6 +33,6 @@ clipping_element <- function(elmnt,
         ggplot2::scale_fill_viridis_c(labels = scales::label_number())  +
         ggplot2::ggtitle(paste(elmnt, '(ppm)'))
 
-    plotly::ggplotly(plotlyplot, tooltip = c("Fe57"))
+    plotly::ggplotly(plotlyplot, tooltip = elmnt)
 
 }

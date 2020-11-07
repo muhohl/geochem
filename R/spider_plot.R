@@ -17,17 +17,22 @@
 #' single lines for those samples are plotted.
 #' @param ncol
 #' Number of facet columns.
+#' @param ...
+#' Arguments passed on to ggplot2::theme().
 #'
 #' @return
 #' @export
 #'
 #' @examples
+#'
+#' @import magrittr
 spider_plot <- function(data,
                         elements,
                         group,
                         levels = elements,
                         ribbon = TRUE,
-                        ncol = NULL) {
+                        ncol = NULL,
+                        ...) {
 
     By_Group <- function(data, group, elements, levels) {
         quo_group <-  ggplot2::sym(group)
@@ -75,7 +80,7 @@ spider_plot <- function(data,
 
     if (ribbon == FALSE) {
 
-        By_Gather(data = data,
+        spider_p <- By_Gather(data = data,
                   elements = elements,
                   levels = levels) %>%
             ggplot2::ggplot(ggplot2::aes(elements,
@@ -93,18 +98,11 @@ spider_plot <- function(data,
                                         Median,
                                         color = !! quo_group,
                                         group = !! quo_group),
-                      size = 2.5) +
-            ggplot2::facet_wrap(quo_group, ncol = ncol) +
-            ggplot2::scale_y_log10(labels = prettyNum) +
-            ggplot2::scale_fill_viridis(discrete = TRUE) +
-            ggplot2::scale_color_viridis(discrete = TRUE) +
-            ggplot2::theme_dark() +
-            ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) +
-            ggplot2::labs(x = "")
+                      size = 2.5)
 
     } else {
 
-        By_Gather_Ribbon(data = data,
+        spider_p <- By_Gather_Ribbon(data = data,
                          group = group,
                          elements = elements,
                          levels = levels) %>%
@@ -127,13 +125,17 @@ spider_plot <- function(data,
                           median,
                           color = !! quo_group,
                           group = !! quo_group),
-                      size = 2) +
-            ggplot2::facet_wrap(quo_group, ncol = ncol) +
-            ggplot2::scale_y_log10(labels = prettyNum) +
-            ggplot2::scale_fill_viridis(discrete = TRUE) +
-            ggplot2::scale_color_viridis(discrete = TRUE) +
-            ggplot2::theme_dark() +
-            ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) +
-            ggplot2::labs(x = "", y = "")
+                      size = 2)
     }
+    spider_p <- spider_p +
+        ggplot2::facet_wrap(quo_group, ncol = ncol) +
+        ggplot2::scale_y_log10(labels = prettyNum) +
+        viridis::scale_fill_viridis(discrete = TRUE) +
+        viridis::scale_color_viridis(discrete = TRUE) +
+        ggplot2::theme_dark() +
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+                       ...) +
+        ggplot2::labs(x = "", y = "")
+
+    return(spider_p)
 }

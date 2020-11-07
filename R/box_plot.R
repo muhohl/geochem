@@ -16,6 +16,8 @@
 #' @export
 #'
 #' @examples
+#'
+#' @import magrittr
 box_plot <- function(data,
                      elements,
                      group,
