@@ -98,18 +98,7 @@ spider_plot <- function(data,
                                         Median,
                                         color = !! quo_group,
                                         group = !! quo_group),
-<<<<<<< HEAD
-                      size = 2.5)
-=======
-                      size = 2.5) +
-            ggplot2::facet_wrap(quo_group, ncol = ncol) +
-            ggplot2::scale_y_log10(labels = prettyNum) +
-            viridis::scale_fill_viridis(discrete = TRUE) +
-            viridis::scale_color_viridis(discrete = TRUE) +
-            ggplot2::theme_dark() +
-            ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) +
-            ggplot2::labs(x = "")
->>>>>>> 12c85614df88404f636033f5ffd5c47594c4859b
+                               size = 2.5)
 
     } else {
 
@@ -136,19 +125,9 @@ spider_plot <- function(data,
                           median,
                           color = !! quo_group,
                           group = !! quo_group),
-<<<<<<< HEAD
-                      size = 2)
-=======
-                      size = 2) +
-            ggplot2::facet_wrap(quo_group, ncol = ncol) +
-            ggplot2::scale_y_log10(labels = prettyNum) +
-            viridis::scale_fill_viridis(discrete = TRUE) +
-            viridis::scale_color_viridis(discrete = TRUE) +
-            ggplot2::theme_dark() +
-            ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) +
-            ggplot2::labs(x = "", y = "")
->>>>>>> 12c85614df88404f636033f5ffd5c47594c4859b
+                          size = 2)
     }
+
     spider_p <- spider_p +
         ggplot2::facet_wrap(quo_group, ncol = ncol) +
         ggplot2::scale_y_log10(labels = prettyNum) +

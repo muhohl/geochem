@@ -28,6 +28,8 @@ name of a column in the data frame.}
 single lines for those samples are plotted.}
 
 \item{ncol}{Number of facet columns.}
+
+\item{...}{Arguments passed on to ggplot2::theme().}
 }
 \value{
 
