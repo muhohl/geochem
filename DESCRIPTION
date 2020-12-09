@@ -22,6 +22,7 @@ Imports:
     stats,
     purrr,
     stringr,
-    tibble
+    tibble,
+    RColorBrewer,
 URL: https://github.com/muhohl/geochem
 BugReports: https://github.com/muhohl/geochem/issues
