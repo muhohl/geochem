@@ -85,3 +85,12 @@ TODO Write instructions for the laser maps function\!
 7.  Plot the list with plots
 
 8.  Save the plot
+
+### XMOD Maps
+
+A couple of functions that allow the user to plot XMOD maps.
+
+# TODO
+
+    * Add remaining functions. 
+    * Create dummy data frames for laser spot data, a laser map, and a XMOD data set.
