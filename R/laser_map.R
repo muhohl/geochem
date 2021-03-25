@@ -101,6 +101,10 @@ laser_map <- function(data,
                                             pretty(0.5*max_ppm)[2],
                                             pretty(0.75*max_ppm)[2])
 
+                if (small_breaks_list[[1]][4] > max_ppm) {
+                    small_breaks_list[[2]] <- TRUE
+                }
+
 
 
                 # check for duplicate or larger values in the scale, if so reduce the number of
