@@ -33,6 +33,9 @@ laser_map <- function(data,
                      Log_Trans = FALSE,
                      pcobj = NA,
                      sel_pc = NA,
+                     unit_title = "(ppm)",
+                     fontsize = 14,
+                     font = "serif",
                      ...) {
 
     # Create empty vectors for the following for loop
@@ -40,6 +43,18 @@ laser_map <- function(data,
     plot_list_new <- list()
 
     breaks <- exp(seq(log(0.01), log(1000000), length.out = 9))
+
+
+    # Check for X,Y coordinates name and change them to lower case
+    for (i in names(data)) {
+        if (i == "X") {
+            data <- dplyr::rename_with(data, tolower, c("X"))
+        }
+        if (i == "Y") {
+            data <- dplyr::rename_with(data, tolower, c("Y"))
+        }
+    }
+
 
     # The plotting for loop!
     for (i in 1:length(selected_elements)) {
@@ -51,6 +66,7 @@ laser_map <- function(data,
         min_log <- log(min_ppm)
         max_log <- log(max_ppm)
         range_log <- max_log - min_log
+
 
         # Look up which elements should be log transformed
         if (typeof(Log_Trans) == "logical") {
@@ -78,7 +94,9 @@ laser_map <- function(data,
                        fill = !! ggplot2::sym(element))) +
             ggplot2::geom_raster(interpolate = TRUE) +
             ggplot2::theme_bw() +
-            ggplot2::theme(panel.border = ggplot2::element_blank()) +
+            ggplot2::theme(panel.border = ggplot2::element_blank(),
+                           text = ggplot2::element_text(family = font,
+                                                        size = fontsize)) +
             ggplot2::coord_fixed(ratio = 1) +
                   #aspect.ratio = 1) +
             ggplot2::scale_y_discrete(expand = c(0,0)) +
@@ -86,7 +104,7 @@ laser_map <- function(data,
             ggplot2::labs(fill = "",
                  y = "",
                  x = "") +
-            ggplot2::ggtitle(paste(element, '(ppm)'))
+            ggplot2::ggtitle(paste(element, unit_title))
 
         # From here onwards is mostly scale handling
         if (!stringr::str_detect(element, 'PC')) {
@@ -132,7 +150,7 @@ laser_map <- function(data,
                                          breaks = small_breaks_list[[1]],
                                          expand = c(0,0),
                                          labels = scales::label_number()) +
-                    ggplot2::ggtitle(paste(element, '(ppm)'))
+                    ggplot2::ggtitle(paste(element, unit_title))
 
                 min_log <- min_ppm
                 max_log <- max_ppm
@@ -163,7 +181,7 @@ laser_map <- function(data,
                                          breaks = breaks_in_element,
                                          expand = c(0,0),
                                          labels = scales::label_number()) +
-                    ggplot2::ggtitle(paste(element, '(ppm) - log')) #+
+                    ggplot2::ggtitle(paste(element, unit_title, ' - log')) #+
                 #theme(text = element_text(family = 'serif')) # make it into if statement
                 # if true than lapply to the complete list at the end of the program, like
                 # the margin is applied

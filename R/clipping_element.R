@@ -18,6 +18,16 @@
 clipping_element <- function(elmnt,
                              data) {
 
+    # Check for X,Y coordinates name and change them to lower case
+    for (i in names(data)) {
+        if (i == "X") {
+            data <- dplyr::rename_with(data, tolower, c("X"))
+        }
+        if (i == "Y") {
+            data <- dplyr::rename_with(data, tolower, c("Y"))
+        }
+    }
+
     plotlyplot <- data %>%
         ggplot2::ggplot(ggplot2::aes(x, y,
                    fill = !! ggplot2::sym(elmnt))) +
