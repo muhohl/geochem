@@ -30,19 +30,24 @@ clipping_element <- function(elmnt,
 
     plotlyplot <- data %>%
         ggplot2::ggplot(ggplot2::aes(x, y,
-                   fill = !! ggplot2::sym(elmnt))) +
+                   fill = !! ggplot2::sym(elmnt),
+                   text = paste0(elmnt,
+                                 ": ",
+                                 round(!! ggplot2::sym(elmnt),
+                                       digits = 1)))) +
         ggplot2::geom_raster(interpolate = TRUE) +
         ggplot2::theme_bw() +
         ggplot2::theme(panel.border = ggplot2::element_blank(),
               axis.ticks = ggplot2::element_blank(),
               axis.text = ggplot2::element_blank(),
               axis.title = ggplot2::element_blank()) +
+        ggplot2::coord_fixed(ratio = 1) +
         ggplot2::labs(fill = "",
              y = "",
              x = "") +
         ggplot2::scale_fill_viridis_c(labels = scales::label_number())  +
         ggplot2::ggtitle(paste(elmnt, '(ppm)'))
 
-    plotly::ggplotly(plotlyplot, tooltip = elmnt)
+    plotly::ggplotly(plotlyplot, tooltip = "text")
 
 }
