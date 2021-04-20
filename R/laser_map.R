@@ -18,6 +18,15 @@
 #' @param sel_pc
 #' Selecting the principal components from the pcobj to calculate the explained
 #' variance shown by the laser map.
+#' @param unit_title
+#' Specify the unit of the laser map for the plot title as a string. Has no
+#' effect on the values.
+#' @param fontsize
+#' Fontsize used in the plot.
+#' @param font
+#' Font type, options are "serif", "sans" and "mono".
+#' @param labels
+#' Argument for the scale notation. See ?scales:: for more information.
 #' @param ...
 #' Options for viridis color scale. Includes "A", "B", "C", "D".
 #' See ?ggplot2::scale_fill_viridis for more information.
@@ -36,6 +45,7 @@ laser_map <- function(data,
                      unit_title = "(ppm)",
                      fontsize = 14,
                      font = "serif",
+                     labels = scales::label_scientific(),
                      ...) {
 
     # Create empty vectors for the following for loop
@@ -149,7 +159,7 @@ laser_map <- function(data,
                                          limits = c(min_ppm, max_ppm),
                                          breaks = small_breaks_list[[1]],
                                          expand = c(0,0),
-                                         labels = scales::label_number()) +
+                                         labels = labels) +
                     ggplot2::ggtitle(paste(element, unit_title))
 
                 min_log <- min_ppm
@@ -180,7 +190,7 @@ laser_map <- function(data,
                                          limits = c(min_ppm, max_ppm),
                                          breaks = breaks_in_element,
                                          expand = c(0,0),
-                                         labels = scales::label_number()) +
+                                         labels = labels) +
                     ggplot2::ggtitle(paste(element, unit_title, ' - log')) #+
                 #theme(text = element_text(family = 'serif')) # make it into if statement
                 # if true than lapply to the complete list at the end of the program, like
@@ -212,7 +222,7 @@ laser_map <- function(data,
                                      high = 'red',
                                      low = 'cyan',
                                      mid = 'grey35',
-                                     labels = scales::label_number()) +
+                                     labels = labels) +
                 ggplot2::ggtitle(paste(element, sprintf('- %0.1f%% explained var.', expl_var)))
         }
 

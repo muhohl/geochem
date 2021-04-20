@@ -10,6 +10,10 @@ laser_map(
   Log_Trans = FALSE,
   pcobj = NA,
   sel_pc = NA,
+  unit_title = "(ppm)",
+  fontsize = 14,
+  font = "serif",
+  labels = scales::label_scientific(),
   ...
 )
 }
@@ -26,6 +30,15 @@ log transformed. If not specified all elements are log transformed.}
 
 \item{sel_pc}{Selecting the principal components from the pcobj to calculate the explained
 variance shown by the laser map.}
+
+\item{unit_title}{Specify the unit of the laser map for the plot title as a string. Has no
+effect on the values.}
+
+\item{fontsize}{Fontsize used in the plot.}
+
+\item{font}{Font type, options are "serif", "sans" and "mono".}
+
+\item{labels}{Argument for the scale notation. See ?scales:: for more information.}
 
 \item{...}{Options for viridis color scale. Includes "A", "B", "C", "D".
 See ?ggplot2::scale_fill_viridis for more information.}
