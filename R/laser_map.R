@@ -40,7 +40,7 @@
 laser_map <- function(data,
                      selected_elements,
                      Log_Trans = FALSE,
-                     pcobj = NA,
+                     pca_rec = NA,
                      sel_pc = NA,
                      unit_title = "(ppm)",
                      fontsize = 14,
@@ -208,7 +208,18 @@ laser_map <- function(data,
         if (stringr::str_detect(element, 'PC')) {
 
             # get the explained variance for the selected principal components
-            expl_var <- (100 * pcobj$sdev[sel_pc]^2/sum(pcobj$sdev^2))[as.numeric(stringr::str_extract(element, '\\d\\d|\\d'))]
+            if (class(pca_rec) == "prcomp") {
+                expl_var <- (100 * pca_rec$sdev[sel_pc]^2/sum(pca_rec$sdev^2))[as.numeric(stringr::str_extract(element, '\\d\\d|\\d'))]
+            }
+
+            if (class(pca_rec) == "recipe") {
+                expl_var_all <- pca_rec %>%
+                    recipes::tidy(id = "pca", type = "variance") %>%
+                    dplyr::filter(terms == "percent variance") %>%
+                    pull(value)
+            expl_var <- expl_var_all[sel_pc]
+            }
+
 
             small_breaks_list[[1]] <- c(min_ppm,
                                         min_ppm/2,
@@ -222,7 +233,7 @@ laser_map <- function(data,
                                      high = 'red',
                                      low = 'cyan',
                                      mid = 'grey35',
-                                     labels = labels) +
+                                     labels = scales::label_number()) +
                 ggplot2::ggtitle(paste(element, sprintf('- %0.1f%% explained var.', expl_var)))
         }
 
