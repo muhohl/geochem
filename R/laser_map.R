@@ -217,7 +217,10 @@ laser_map <- function(data,
                     recipes::tidy(id = "pca", type = "variance") %>%
                     dplyr::filter(terms == "percent variance") %>%
                     pull(value)
-            expl_var <- expl_var_all[sel_pc]
+                # extract the number of the PC with str_extract and use it as sel_pc.
+                # I don't even need the sel_pc argument if I use the tidymodels approach.
+                sel_pc <- stringr::str_extract(element, "//d//d|//d")
+                expl_var <- expl_var_all[sel_pc]
             }
 
 
@@ -236,6 +239,15 @@ laser_map <- function(data,
                                      labels = scales::label_number()) +
                 ggplot2::ggtitle(paste(element, sprintf('- %0.1f%% explained var.', expl_var)))
         }
+
+        if (stringr::str_detect(element, 'k-cluster')) {
+            # plot a map with clusters. Need to change the scale to a discrete color scale.
+            # Shouldn't spend to much work on that.
+            # plot a map with clusters. Need to change the scale to a discrete color scale.
+            # Shouldn't spend to much work on that
+
+        }
+
 
 
         # Resize the legend, so that it is the same size as the plot
