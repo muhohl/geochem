@@ -219,8 +219,8 @@ laser_map <- function(data,
                     pull(value)
                 # extract the number of the PC with str_extract and use it as sel_pc.
                 # I don't even need the sel_pc argument if I use the tidymodels approach.
-                sel_pc <- stringr::str_extract(element, "//d//d|//d")
-                expl_var <- expl_var_all[sel_pc]
+                sel_pc_new <- stringr::str_extract(element, "\\d\\d|\\d")
+                expl_var <- round(expl_var_all[as.numeric(sel_pc_new)], 2)
             }
 
 
@@ -240,12 +240,15 @@ laser_map <- function(data,
                 ggplot2::ggtitle(paste(element, sprintf('- %0.1f%% explained var.', expl_var)))
         }
 
-        if (stringr::str_detect(element, 'k-cluster')) {
+        if (stringr::str_detect(element, 'kNN')) {
             # plot a map with clusters. Need to change the scale to a discrete color scale.
             # Shouldn't spend to much work on that.
             # plot a map with clusters. Need to change the scale to a discrete color scale.
             # Shouldn't spend to much work on that
-
+            p1 <- p1 +
+                scico::scale_color_scico_d(palette = "bamako",
+                                           labels = scales::label_number()) +
+                ggplot2::ggtitle(paste(element))
         }
 
 
@@ -264,7 +267,7 @@ laser_map <- function(data,
         # Raster height
         leg[[1]][[1]][[1]][[1]][[1]][[2]]$height <- grid::unit(1, "npc")
 
-        if (trans_arg == "log" & !stringr::str_detect(element, 'PC')) {
+        if (trans_arg == "log" & !stringr::str_detect(element, 'PC|kNN')) {
             breaks_in_element <- log(breaks_in_element)
         }
 
