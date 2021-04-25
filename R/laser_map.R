@@ -71,11 +71,14 @@ laser_map <- function(data,
 
         # define variable at the beginning of each iteration
         element <- colnames(data[selected_elements[i]])
-        min_ppm <- min(data[selected_elements[i]])
-        max_ppm <- max(data[selected_elements[i]])
-        min_log <- log(min_ppm)
-        max_log <- log(max_ppm)
-        range_log <- max_log - min_log
+
+        if (!stringr::str_detect(element, "kNN")) {
+            min_ppm <- min(data[selected_elements[i]])
+            max_ppm <- max(data[selected_elements[i]])
+            min_log <- log(min_ppm)
+            max_log <- log(max_ppm)
+            range_log <- max_log - min_log
+        }
 
 
         # Look up which elements should be log transformed
@@ -117,7 +120,7 @@ laser_map <- function(data,
             ggplot2::ggtitle(paste(element, unit_title))
 
         # From here onwards is mostly scale handling
-        if (!stringr::str_detect(element, 'PC')) {
+        if (!stringr::str_detect(element, 'PC|kNN')) {
 
             # If statements that decide if log transformed or not
             if (trans_arg == 'identity') {
@@ -241,13 +244,13 @@ laser_map <- function(data,
         }
 
         if (stringr::str_detect(element, 'kNN')) {
-            # plot a map with clusters. Need to change the scale to a discrete color scale.
-            # Shouldn't spend to much work on that.
-            # plot a map with clusters. Need to change the scale to a discrete color scale.
-            # Shouldn't spend to much work on that
+            # 2 more things to improve the code:
+            # Write a function that checks if the column is a factor and if not
+            # transform to avoid breaking of the function.
+            # 2. Fix the colors based on the maximum amount of k's that will be
+            # plotted. This should make the color consistent across different k's.
             p1 <- p1 +
-                scico::scale_color_scico_d(palette = "bamako",
-                                           labels = scales::label_number()) +
+                scico::scale_fill_scico_d(palette = "bamako") +
                 ggplot2::ggtitle(paste(element))
         }
 
@@ -297,6 +300,7 @@ laser_map <- function(data,
                                 grid::unit(abs(max_ppm)/(abs(min_ppm-max_ppm))/2+(abs(min_ppm)/(abs(min_ppm - max_ppm))), "npc"), grid::unit(.99, "npc"))
         }
 
+
         # Positions the labels
         leg[[1]][[1]][[1]][[1]][[1]][[3]]$children[[1]]$y <- pos
 
@@ -321,6 +325,12 @@ laser_map <- function(data,
 
         # Transform the gtable object back into an ggplot opject
         plot_list_new[[i]] <- ggpubr::as_ggplot(plot_list_new[[i]])
+
+        # Define the position for the PCA legend, as percentages to their negative and positive extremes
+        if (stringr::str_detect(element, 'kNN')) {
+            print("blub")
+            plot_list_new[[i]] <- plot_list[[i]]
+        }
     }
     return(plot_list_new)
 }
