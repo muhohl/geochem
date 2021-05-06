@@ -80,7 +80,6 @@ laser_map <- function(data,
             range_log <- max_log - min_log
         }
 
-
         # Look up which elements should be log transformed
         if (typeof(Log_Trans) == "logical") {
             if (Log_Trans == FALSE) {
@@ -156,6 +155,7 @@ laser_map <- function(data,
                 }
 
                 # Add the color scale and title according to log transformation or not
+
                 p1 <- p1 +
                     ggplot2::scale_fill_viridis_c(option = ...,
                                          trans = trans_arg,
@@ -187,17 +187,36 @@ laser_map <- function(data,
                     breaks_one <- TRUE
                 }
 
+                if (stringr::str_detect(element, "/")) {
                 p1 <- p1 +
-                    ggplot2::scale_fill_viridis_c(option = ...,
-                                         trans = trans_arg,
-                                         limits = c(min_ppm, max_ppm),
-                                         breaks = breaks_in_element,
-                                         expand = c(0,0),
-                                         labels = labels) +
-                    ggplot2::ggtitle(paste(element, unit_title, ' - log')) #+
-                #theme(text = element_text(family = 'serif')) # make it into if statement
-                # if true than lapply to the complete list at the end of the program, like
-                # the margin is applied
+                    ggplot2::scale_fill_gradient2(trans = "log",
+                                                  low = "#001096",
+                                                  high = "#E60000",
+                                                  mid = "grey80",
+                                                  limits = c(min_ppm, max_ppm),
+                                                  breaks = breaks_in_element,
+                                                  expand = c(0,0),
+                                                  labels = scales::label_number(accuracy = 0.01))
+
+                } else {
+                    p1 <- p1 +
+                        ggplot2::scale_fill_viridis_c(option = ...,
+                                             trans = trans_arg,
+                                             limits = c(min_ppm, max_ppm),
+                                             breaks = breaks_in_element,
+                                             expand = c(0,0),
+                                             labels = labels) +
+                        ggplot2::ggtitle(paste(element, unit_title)) #+
+                        #theme(text = element_text(family = 'serif')) # make it into if statement
+                        # if true than lapply to the complete list at the end of the program, like
+                        # the margin is applied
+                }
+
+
+
+
+
+
 
                 if (breaks_one) {
                     breaks_in_element <- breaks_in_element[2]
@@ -256,6 +275,10 @@ laser_map <- function(data,
 
 
 
+
+
+
+
         # Resize the legend, so that it is the same size as the plot
         # Code from github: https://stackoverflow.com/questions/19214914/how-can-i-make-the-legend-in-ggplot2-the-same-height-as-my-plot
         # Here it's the answer by Sandy Muspratt; second answer
@@ -291,7 +314,6 @@ laser_map <- function(data,
         }
 
 
-
         # Define the position for the PCA legend, as percentages to their negative and positive extremes
         if (stringr::str_detect(element, 'PC')) {
             pos <- grid::unit.c(grid::unit(0.01,"npc"),
@@ -299,7 +321,6 @@ laser_map <- function(data,
                                 grid::unit(abs(min_ppm)/(abs(min_ppm - max_ppm)), "npc"),
                                 grid::unit(abs(max_ppm)/(abs(min_ppm-max_ppm))/2+(abs(min_ppm)/(abs(min_ppm - max_ppm))), "npc"), grid::unit(.99, "npc"))
         }
-
 
         # Positions the labels
         leg[[1]][[1]][[1]][[1]][[1]][[3]]$children[[1]]$y <- pos
@@ -328,7 +349,6 @@ laser_map <- function(data,
 
         # Define the position for the PCA legend, as percentages to their negative and positive extremes
         if (stringr::str_detect(element, 'kNN')) {
-            print("blub")
             plot_list_new[[i]] <- plot_list[[i]]
         }
     }
