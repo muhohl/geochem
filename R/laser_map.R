@@ -188,17 +188,19 @@ laser_map <- function(data,
                 }
 
                 if (stringr::str_detect(element, "/")) {
-                p1 <- p1 +
-                    ggplot2::scale_fill_gradient2(trans = "log",
-                                                  low = "#001096",
-                                                  high = "#E60000",
-                                                  mid = "grey80",
-                                                  limits = c(min_ppm, max_ppm),
-                                                  breaks = breaks_in_element,
-                                                  expand = c(0,0),
-                                                  labels = scales::label_number(accuracy = 0.01))
+                    # Ratio Plot
+                    p1 <- p1 +
+                        ggplot2::scale_fill_gradient2(trans = "log",
+                                                      low = "#001096",
+                                                      high = "#E60000",
+                                                      mid = "grey80",
+                                                      limits = c(min_ppm, max_ppm),
+                                                      breaks = breaks_in_element,
+                                                      expand = c(0,0),
+                                                      labels = scales::label_number(accuracy = 0.01))
 
                 } else {
+                    # Log scale plot
                     p1 <- p1 +
                         ggplot2::scale_fill_viridis_c(option = ...,
                                              trans = trans_arg,
@@ -211,13 +213,6 @@ laser_map <- function(data,
                         # if true than lapply to the complete list at the end of the program, like
                         # the margin is applied
                 }
-
-
-
-
-
-
-
                 if (breaks_one) {
                     breaks_in_element <- breaks_in_element[2]
                 }
@@ -272,11 +267,6 @@ laser_map <- function(data,
                 scico::scale_fill_scico_d(palette = "bamako") +
                 ggplot2::ggtitle(paste(element))
         }
-
-
-
-
-
 
 
         # Resize the legend, so that it is the same size as the plot
