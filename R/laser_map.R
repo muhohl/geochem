@@ -54,6 +54,12 @@ laser_map <- function(data,
 
     breaks <- exp(seq(log(0.01), log(1000000), length.out = 9))
 
+    kNN_Colors <- ggsci::pal_aaas()(9)
+    kNN_n <- c("1", "2", "3", "4", "5", "6", "7", "8", "9")
+    names(kNN_Colors) <- factor(kNN_n)
+    fill_scale_knn <- ggplot2::scale_fill_manual(name = "Cluster",
+                                                 values = kNN_Colors)
+
 
     # Check for X,Y coordinates name and change them to lower case
     for (i in names(data)) {
@@ -264,7 +270,7 @@ laser_map <- function(data,
             # 2. Fix the colors based on the maximum amount of k's that will be
             # plotted. This should make the color consistent across different k's.
             p1 <- p1 +
-                scico::scale_fill_scico_d(palette = "bamako") +
+                fill_scale_knn +
                 ggplot2::ggtitle(paste(element))
         }
 
