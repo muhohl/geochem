@@ -8,7 +8,7 @@ laser_map(
   data,
   selected_elements,
   Log_Trans = FALSE,
-  pcobj = NA,
+  pca_rec = NA,
   sel_pc = NA,
   unit_title = "(ppm)",
   fontsize = 14,
@@ -26,8 +26,6 @@ the laser map data frame.}
 \item{Log_Trans}{Data set containing a column called "Log" which indicates if a map should be
 log transformed. If not specified all elements are log transformed.}
 
-\item{pcobj}{PCA object created by stats::prcomp.}
-
 \item{sel_pc}{Selecting the principal components from the pcobj to calculate the explained
 variance shown by the laser map.}
 
@@ -42,6 +40,8 @@ effect on the values.}
 
 \item{...}{Options for viridis color scale. Includes "A", "B", "C", "D".
 See ?ggplot2::scale_fill_viridis for more information.}
+
+\item{pcobj}{PCA object created by stats::prcomp.}
 }
 \value{
 
