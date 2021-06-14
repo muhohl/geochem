@@ -8,6 +8,8 @@
 #' PC shown on y-axis.
 #' @param labels
 #' If TRUE labels of the arrows are plotted.
+#' @param ...
+#' Arguments passed on to geom_segment, which is drawing the arrows.
 #'
 #' @return ggplot object
 #' @export
@@ -16,7 +18,8 @@
 geom_pca_arrows <- function(pca_rec,
                             pc_x = 1,
                             pc_y = 2,
-                            labels = TRUE) {
+                            labels = TRUE,
+                            ...) {
 
     pca_wider <- pca_rec %>%
          recipes::tidy(id = "pca",
@@ -35,9 +38,8 @@ geom_pca_arrows <- function(pca_rec,
                                                                 yend = !!ggplot2::sym(glue::glue("PC{pc_y}"))),
                                                    x = 0,
                                                    y = 0,
-                                                   color = "yellow",
-                                                   size = 1.1,
-                                                   arrow = arrow_style)
+                                                   arrow = arrow_style,
+                                                   ...)
                          )
     )
 

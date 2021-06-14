@@ -6,6 +6,8 @@
 #' PC shown on x-axis.
 #' @param pc_y
 #' PC shown on y-axis.
+#' @param ...
+#' arguments passed on to labs.
 #'
 #' @return ggplot object
 #' @export
