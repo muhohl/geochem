@@ -29,7 +29,7 @@ geom_dare <- function(...) {
                        params = list(label = "Hydrothermal",
                                      ...),
                        show.legend = FALSE),
-        ggplot2::layer(mapping = ggplot2::aes(x = 0.01,
+        ggplot2::layer(mapping = ggplot2::aes(x = 0.08,
                                               y = 8000),
                        geom = ggplot2::GeomText,
                        stat = "identity",
