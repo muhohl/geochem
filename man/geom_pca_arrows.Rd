@@ -4,7 +4,7 @@
 \alias{geom_pca_arrows}
 \title{Eigen Value plot geom for tidymodel PCA}
 \usage{
-geom_pca_arrows(pca_rec, pc_x = 1, pc_y = 2, labels = TRUE)
+geom_pca_arrows(pca_rec, pc_x = 1, pc_y = 2, labels = TRUE, ...)
 }
 \arguments{
 \item{pca_rec}{The PCA recipe, a tidymodel object.}
@@ -14,6 +14,8 @@ geom_pca_arrows(pca_rec, pc_x = 1, pc_y = 2, labels = TRUE)
 \item{pc_y}{PC shown on y-axis.}
 
 \item{labels}{If TRUE labels of the arrows are plotted.}
+
+\item{...}{Arguments passed on to geom_segment, which is drawing the arrows.}
 }
 \value{
 ggplot object

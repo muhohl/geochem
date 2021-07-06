@@ -22,10 +22,10 @@ geom_pca_arrows <- function(pca_rec,
                             ...) {
 
     pca_wider <- pca_rec %>%
-         recipes::tidy(id = "pca",
-                       type = "coef") %>%
-         tidyr::pivot_wider(names_from = component,
-                            id_cols = terms)
+        recipes::tidy(id = "pca",
+                      type = "coef") %>%
+        tidyr::pivot_wider(names_from = component,
+                           id_cols = terms)
 
     arrow_style <- ggplot2::arrow(length = ggplot2::unit(.1, "inches"),
                                   type = "open")
@@ -45,13 +45,13 @@ geom_pca_arrows <- function(pca_rec,
 
     if (labels) {
         pca_arrows <- append(pca_arrows, list(
-        ggrepel::geom_label_repel(data = pca_wider,
-                                  ggplot2::aes(x = !!ggplot2::sym(glue::glue("PC{pc_x}")),
-                                               y = !!ggplot2::sym(glue::glue("PC{pc_y}")),
-                                               label = terms),
-                                  label.size = 0.25,
-                                  fill = "white",
-                                  color = "#0A537D")
+            ggrepel::geom_label_repel(data = pca_wider,
+                                      ggplot2::aes(x = !!ggplot2::sym(glue::glue("PC{pc_x}")),
+                                                   y = !!ggplot2::sym(glue::glue("PC{pc_y}")),
+                                                   label = terms),
+                                      label.size = 0.25,
+                                      fill = "white",
+                                      color = "#0A537D")
         ))
     }
 

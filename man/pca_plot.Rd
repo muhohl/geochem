@@ -4,7 +4,7 @@
 \alias{pca_plot}
 \title{Title}
 \usage{
-pca_plot(pca_rec, pc_x = 1, pc_y = 2)
+pca_plot(pca_rec, pc_x = 1, pc_y = 2, ...)
 }
 \arguments{
 \item{pca_rec}{The PCA recipe, a tidymodel object.}
@@ -12,6 +12,8 @@ pca_plot(pca_rec, pc_x = 1, pc_y = 2)
 \item{pc_x}{PC shown on x-axis.}
 
 \item{pc_y}{PC shown on y-axis.}
+
+\item{...}{arguments passed on to labs.}
 }
 \value{
 ggplot object

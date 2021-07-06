@@ -4,7 +4,14 @@
 \alias{mgt_class_D_B}
 \title{Magnetite Classification Template after Dupuis&Beaudoin}
 \usage{
-mgt_class_D_B(labels = TRUE, fields = TRUE, color_fill = TRUE, scales = TRUE)
+mgt_class_D_B(
+  labels = TRUE,
+  fields = TRUE,
+  color_fill = TRUE,
+  color = "black",
+  scales = TRUE,
+  ...
+)
 }
 \arguments{
 \item{labels}{If TRUE labels are drawn.}

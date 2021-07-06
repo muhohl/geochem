@@ -141,8 +141,6 @@ laser_map <- function(data,
                     small_breaks_list[[2]] <- TRUE
                 }
 
-
-
                 # check for duplicate or larger values in the scale, if so reduce the number of
                 # breaks to three
                 small_breaks_list[[2]] <- geochem::double_values_checker(breaks_fun = small_breaks_list[[1]],
@@ -191,6 +189,10 @@ laser_map <- function(data,
                 if (length(breaks_in_element) == 1) {
                     breaks_in_element <- append(breaks_in_element, min_ppm, after = 0)
                     breaks_one <- TRUE
+                }
+                if (length(breaks_in_element) == 0) {
+                    breaks_in_element <- append(breaks_in_element, ((min_ppm+max_ppm)/2), after = 0)
+                    #breaks_one <- TRUE
                 }
 
                 if (stringr::str_detect(element, "/")) {
@@ -287,7 +289,11 @@ laser_map <- function(data,
         leg <- gtable::gtable_filter(gt, "guide-box")
 
         # Raster height
-        leg[[1]][[1]][[1]][[1]][[1]][[2]]$height <- grid::unit(1, "npc")
+        if (length(breaks_in_element) >= 1) {
+            leg[[1]][[1]][[1]][[1]][[1]][[2]]$height <- grid::unit(1, "npc")
+        } else {
+            leg[[1]][[1]][[1]][[1]][[1]][[2]]$height <- grid::unit(1, "npc")
+        }
 
         if (trans_arg == "log" & !stringr::str_detect(element, 'PC|kNN')) {
             breaks_in_element <- log(breaks_in_element)
