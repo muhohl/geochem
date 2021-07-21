@@ -16,6 +16,7 @@
 pca_plot <- function(pca_rec,
                   pc_x = 1,
                   pc_y = 2,
+                  data = NA,
                   ...) {
 
        pca_all_var <- pca_rec %>%
@@ -24,8 +25,13 @@ pca_plot <- function(pca_rec,
         dplyr::filter(terms == "percent variance") %>%
         pull(value)
 
-    base_plot <- recipes::bake(pca_rec,
-                               new_data = NULL) %>%
+       if (is.na(data[[1]])) {
+           df_pca <- recipes::bake(pca_rec, new_data = NULL)
+       } else {
+           df_pca <- data
+       }
+
+    base_plot <- df_pca %>%
         ggplot2::ggplot(ggplot2::aes(!!ggplot2::sym(glue::glue("PC{pc_x}")),
                                      !!sym(glue::glue("PC{pc_y}")))) +
         ggplot2::labs(x = glue::glue("PC {pc_x} [{round(pca_all_var[pc_x], 2)}%]"),
