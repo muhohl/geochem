@@ -262,7 +262,7 @@ laser_map <- function(data,
                                      low = 'cyan',
                                      mid = 'grey35',
                                      labels = scales::label_number()) +
-                ggplot2::ggtitle(paste(element, sprintf('- %0.1f%% explained var.', expl_var)))
+                ggplot2::ggtitle(paste(element, sprintf('- %0.1f%% expl. var.', expl_var)))
         }
 
         if (stringr::str_detect(element, 'kNN')) {
