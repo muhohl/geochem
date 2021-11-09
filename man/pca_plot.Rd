@@ -4,7 +4,7 @@
 \alias{pca_plot}
 \title{Title}
 \usage{
-pca_plot(pca_rec, pc_x = 1, pc_y = 2, ...)
+pca_plot(pca_rec, pc_x = 1, pc_y = 2, data = NA, ...)
 }
 \arguments{
 \item{pca_rec}{The PCA recipe, a tidymodel object.}
