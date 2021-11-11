@@ -66,9 +66,7 @@ laser_map2 <- function(data,
 
         if (stringr::str_detect(element, "/")) {
             p.map <- p.map +
-                ggplot2::scale_fill_distiller(palette = "Spectral",
-                                              midpoint = 1,
-                                              trans = trans) +
+                ggplot2::scale_fill_gradient2(trans = trans) +
                 ggplot2::ggtitle(paste0(LETTERS[j], ") ", element))
 
             }
