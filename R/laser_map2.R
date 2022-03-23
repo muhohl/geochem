@@ -90,7 +90,7 @@ laser_map2 <- function(data,
                 }
 
             p.map <- p.map +
-                scico::scale_fill_scico(palette = "vik",
+                scico::scale_fill_scico(palette = "vikO",
                                         midpoint = 0) +
                 ggplot2::ggtitle(paste0(plot_enumerator, element,
                                         sprintf(" - %0.1f%% expl. var.", expl_var)))

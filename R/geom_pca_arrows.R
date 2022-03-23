@@ -8,8 +8,14 @@
 #' PC shown on y-axis.
 #' @param labels
 #' If TRUE labels of the arrows are plotted.
+#' @param labels_fill
+#' Fill color of the labels
+#' @param labels_color
+#' Color of the labels text
+#' @param labels_size
+#' Size of the labels
 #' @param ...
-#' Arguments passed on to geom_segment, which is drawing the arrows.
+#' Arguments passed on to geom_label_repel, which is drawing the arrows.
 #'
 #' @return ggplot object
 #' @export
@@ -19,6 +25,9 @@ geom_pca_arrows <- function(pca_rec,
                             pc_x = 1,
                             pc_y = 2,
                             labels = TRUE,
+                            labels_fill = "white",
+                            labels_color = "#0A537D",
+                            labels_size = 0.25,
                             ...) {
 
     pca_wider <- pca_rec %>%
@@ -38,8 +47,7 @@ geom_pca_arrows <- function(pca_rec,
                                                                 yend = !!ggplot2::sym(glue::glue("PC{pc_y}"))),
                                                    x = 0,
                                                    y = 0,
-                                                   arrow = arrow_style,
-                                                   ...)
+                                                   arrow = arrow_style)
                          )
     )
 
@@ -49,9 +57,10 @@ geom_pca_arrows <- function(pca_rec,
                                       ggplot2::aes(x = !!ggplot2::sym(glue::glue("PC{pc_x}")),
                                                    y = !!ggplot2::sym(glue::glue("PC{pc_y}")),
                                                    label = terms),
-                                      label.size = 0.25,
-                                      fill = "white",
-                                      color = "#0A537D")
+                                      label.size = labels_size,
+                                      fill = labels_fill,
+                                      color = labels_color,
+                                      ...)
         ))
     }
 
