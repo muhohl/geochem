@@ -32,11 +32,6 @@ laser_map2 <- function(data,
     j <- which(plot_label_start == plot_label)
     i <- 1
 
-    if (is.na(plot_label)|plot_label == "") {
-        plot_enumerator <- ""
-    } else {
-        plot_enumerator <- paste0(LETTERS[j], ") ")
-    }
 
     # Check for X,Y coordinates name and change them to lower case
     for (k in names(data)) {
@@ -49,6 +44,13 @@ laser_map2 <- function(data,
     }
 
     for (element in names(data)[columns]) {
+
+        if (is.na(plot_label)|plot_label == "") {
+            plot_enumerator <- ""
+        } else {
+            plot_enumerator <- paste0(LETTERS[j], ") ")
+        }
+
         p.map <- ggplot2::ggplot(data = data,
                                  ggplot2::aes(x, y,
                                      fill = !! ggplot2::sym(element))) +
@@ -76,7 +78,7 @@ laser_map2 <- function(data,
                 ggplot2::ggtitle(paste0(plot_enumerator, element))
 
             }
-        if (stringr::str_detect(element, "PC")) {
+        else if (stringr::str_detect(element, "PC")) {
 
             if (class(pca_rec) == "recipe") {
                 expl_var_all <- pca_rec %>%
@@ -94,7 +96,7 @@ laser_map2 <- function(data,
                                         sprintf(" - %0.1f%% expl. var.", expl_var)))
             }
 
-        if (stringr::str_detect(element, "kNN")) {
+        else if (stringr::str_detect(element, "kNN")) {
             p.map <- p.map +
                 ggplot2::scale_fill_continuous(name = "Cluster") +
                 ggplot2::ggtitle(paste0(plot_enumerator, element))
