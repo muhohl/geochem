@@ -32,6 +32,12 @@ laser_map2 <- function(data,
     j <- which(plot_label_start == plot_label)
     i <- 1
 
+    if (is.na(plot_label)|plot_label == "") {
+        plot_enumerator <- ""
+    } else {
+        plot_enumerator <- paste0(LETTERS[j], ") ")
+    }
+
     # Check for X,Y coordinates name and change them to lower case
     for (k in names(data)) {
         if (k == "X") {
@@ -67,7 +73,7 @@ laser_map2 <- function(data,
         if (stringr::str_detect(element, "/")) {
             p.map <- p.map +
                 ggplot2::scale_fill_gradient2(trans = trans) +
-                ggplot2::ggtitle(paste0(LETTERS[j], ") ", element))
+                ggplot2::ggtitle(paste0(plot_enumerator, element))
 
             }
         if (stringr::str_detect(element, "PC")) {
@@ -84,14 +90,14 @@ laser_map2 <- function(data,
             p.map <- p.map +
                 scico::scale_fill_scico(palette = "vik",
                                         midpoint = 0) +
-                ggplot2::ggtitle(paste0(LETTERS[j], ") ", element,
+                ggplot2::ggtitle(paste0(plot_enumerator, element,
                                         sprintf(" - %0.1f%% expl. var.", expl_var)))
             }
 
         if (stringr::str_detect(element, "kNN")) {
             p.map <- p.map +
                 ggplot2::scale_fill_continuous(name = "Cluster") +
-                ggplot2::ggtitle(paste0(LETTERS[j], ") ", element))
+                ggplot2::ggtitle(paste0(plot_enumerator, element))
             }
 
         else {
@@ -100,7 +106,7 @@ laser_map2 <- function(data,
                                                   trans = trans,
                                                   breaks = breaks, # Not ideal because breaks are now set for log trans
                                                   labels = labels) +
-                    ggplot2::ggtitle(paste0(LETTERS[j], ") ", element, " ", unit)) # Take the at the beginning of the for loop, since it constant no matter which if loop is entered
+                    ggplot2::ggtitle(paste0(plot_enumerator, element, " ", unit)) # Take the at the beginning of the for loop, since it constant no matter which if loop is entered
             }
 
         pl.maps[[i]] <- p.map
