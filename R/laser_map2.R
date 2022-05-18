@@ -11,6 +11,7 @@
 #' @param LETTERS
 #' @param unit
 #' @param pca_rec
+#' @param option_Temp
 #'
 #' @return
 #' @export
@@ -27,7 +28,8 @@ laser_map2 <- function(data,
                        plot_label_start = "B",
                        plot_label = LETTERS,
                        unit = "[ppm]",
-                       pca_rec = NA) {
+                       pca_rec = NA,
+                       option_Temp = "D") {
     pl.maps <- list()
     j <- which(plot_label_start == plot_label)
     i <- 1
@@ -45,7 +47,7 @@ laser_map2 <- function(data,
 
     for (element in names(data)[columns]) {
 
-        if (is.na(plot_label)|plot_label == "") {
+        if (is.na(plot_label_start)|plot_label_start == "") {
             plot_enumerator <- ""
         } else {
             plot_enumerator <- paste0(LETTERS[j], ") ")
@@ -74,7 +76,13 @@ laser_map2 <- function(data,
 
         if (stringr::str_detect(element, "/")) {
             p.map <- p.map +
-                ggplot2::scale_fill_gradient2(trans = trans) +
+                ggplot2::scale_fill_gradient2(trans = "log",
+                                              low = "#001096",
+                                              high = "#E60000",
+                                              mid = "grey80",
+                                              breaks = breaks,
+                                              expand = c(0,0),
+                                              labels = scales::label_number(accuracy = 0.01)) +
                 ggplot2::ggtitle(paste0(plot_enumerator, element))
 
             }
@@ -102,6 +110,11 @@ laser_map2 <- function(data,
                 ggplot2::ggtitle(paste0(plot_enumerator, element))
             }
 
+        else if (stringr::str_detect(element, "Temperature")) {
+            p.map <- p.map +
+                ggplot2::scale_fill_viridis_c(option = option_Temp) +
+                ggplot2::ggtitle(paste0(plot_enumerator, element, " [°C]"))
+        }
         else {
             p.map <- p.map +
                     ggplot2::scale_fill_viridis_c(option = option,
