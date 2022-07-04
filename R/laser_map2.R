@@ -10,6 +10,7 @@
 #' @param label_start
 #' @param LETTERS
 #' @param unit
+#' @param family
 #' @param pca_rec
 #' @param option_Temp
 #'
@@ -28,6 +29,7 @@ laser_map2 <- function(data,
                        plot_label_start = "B",
                        plot_label = LETTERS,
                        unit = "[ppm]",
+                       family = "serif",
                        pca_rec = NA,
                        option_Temp = "D") {
     pl.maps <- list()
@@ -47,7 +49,7 @@ laser_map2 <- function(data,
 
     for (element in names(data)[columns]) {
 
-        if (is.na(plot_label_start)|plot_label_start == "") {
+        if (is.na(plot_label_start)|plot_label_start == ""|plot_label_start == "NA") {
             plot_enumerator <- ""
         } else {
             plot_enumerator <- paste0(LETTERS[j], ") ")
@@ -67,7 +69,7 @@ laser_map2 <- function(data,
             ggplot2::theme(panel.border = ggplot2::element_blank(),
                   panel.background = ggplot2::element_rect(fill = "black"),
                   plot.margin = ggplot2::margin(r = 2, b = 2, l = 2),
-                  text = ggplot2::element_text(family = "serif",
+                  text = ggplot2::element_text(family = family,
                                       size = 16)) +
             ggplot2::guides(fill = ggplot2::guide_colorbar(barwidth = ggplot2::unit(0.6, "lines"),
                                          barheight = ggplot2::unit(6, "lines"),
