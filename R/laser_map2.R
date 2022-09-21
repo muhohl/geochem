@@ -8,7 +8,7 @@
 #' @param breaks
 #' @param labels
 #' @param label_start
-#' @param LETTERS
+#' @param letters
 #' @param unit
 #' @param family
 #' @param pca_rec
@@ -26,16 +26,22 @@ laser_map2 <- function(data,
                        trans = "log",
                        breaks = c(10^(-4:6)),
                        labels = scales::label_scientific(),
-                       plot_label_start = "B",
-                       plot_label = LETTERS,
+                       plot_label_start = "b",
+                       plot_label = letters,
                        unit = "[ppm]",
                        family = "serif",
                        pca_rec = NA,
                        option_Temp = "D") {
     pl.maps <- list()
-    j <- which(plot_label_start == plot_label)
+    j <- which(tolower(plot_label_start) == tolower(plot_label))
     i <- 1
 
+    # Include warning message if plot_label_start and plot_label are not the
+    # same case
+
+    if (!is.na(plot_label_start)&plot_label_start != ""&plot_label_start != "NA") {
+        if(plot_label[j] != plot_label_start) warning("Check your plot labels, the case might be wrong")
+    }
 
     # Check for X,Y coordinates name and change them to lower case
     for (k in names(data)) {
@@ -52,7 +58,11 @@ laser_map2 <- function(data,
         if (is.na(plot_label_start)|plot_label_start == ""|plot_label_start == "NA") {
             plot_enumerator <- ""
         } else {
-            plot_enumerator <- paste0(LETTERS[j], ") ")
+            if (stringr::str_detect(plot_label_start, "[[:lower:]]")) {
+                plot_enumerator <- paste0(plot_label[j], ") ")
+            } else {
+                plot_enumerator <- paste0(plot_label[j], ") ")
+            }
         }
 
         p.map <- ggplot2::ggplot(data = data,
