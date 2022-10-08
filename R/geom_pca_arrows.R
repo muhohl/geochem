@@ -47,7 +47,8 @@ geom_pca_arrows <- function(pca_rec,
                                                                 yend = !!ggplot2::sym(glue::glue("PC{pc_y}"))),
                                                    x = 0,
                                                    y = 0,
-                                                   arrow = arrow_style)
+                                                   arrow = arrow_style,
+                                                   ...)
                          )
     )
 
@@ -59,8 +60,7 @@ geom_pca_arrows <- function(pca_rec,
                                                    label = terms),
                                       label.size = labels_size,
                                       fill = labels_fill,
-                                      color = labels_color,
-                                      ...)
+                                      color = labels_color)
         ))
     }
 
