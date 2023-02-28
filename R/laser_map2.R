@@ -118,8 +118,9 @@ laser_map2 <- function(data,
 
         else if (stringr::str_detect(element, "kNN")) {
             p.map <- p.map +
-                ggplot2::scale_fill_continuous(name = "Cluster") +
-                ggplot2::ggtitle(paste0(plot_enumerator, element))
+                see::scale_fill_okabeito() +
+                ggplot2::ggtitle(paste0(plot_enumerator, element)) +
+                ggplot2::guides(fill = "legend")
             }
 
         else if (stringr::str_detect(element, "Temperature")) {
