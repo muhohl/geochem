@@ -14,6 +14,10 @@
 #' Color of the labels text
 #' @param labels_size
 #' Size of the labels
+#' @param labels_font_size
+#' Size of the font in the labels
+#' @param labels_rect_padding
+#' Size of the padding around the labels
 #' @param ...
 #' Arguments passed on to geom_label_repel, which is drawing the arrows.
 #'
@@ -28,6 +32,8 @@ geom_pca_arrows <- function(pca_rec,
                             labels_fill = "white",
                             labels_color = "#0A537D",
                             labels_size = 0.25,
+                            labels_font_size = 3,
+                            labels_rect_padding = 0.25,
                             ...) {
 
     pca_wider <- pca_rec %>%
@@ -59,6 +65,8 @@ geom_pca_arrows <- function(pca_rec,
                                                    y = !!ggplot2::sym(glue::glue("PC{pc_y}")),
                                                    label = terms),
                                       label.size = labels_size,
+                                      size = labels_font_size,
+                                      label.padding = labels_rect_padding,
                                       fill = labels_fill,
                                       color = labels_color)
         ))
