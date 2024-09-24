@@ -1,3 +1,10 @@
+
+#' Molar Mass
+#'
+#' @return
+#' @export
+#'
+#' @examples
 molar_mass <- function() {
   df_mol <- tibble::tibble(
     mol_sio2 = 60,

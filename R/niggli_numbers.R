@@ -1,11 +1,15 @@
-library(tidyverse)
-source('molar_mass.R')
 
-df_chem <- read_csv("example.csv")
+#' Niggli Numbers
+#'
+#' @param df_chemistry
+#'
+#' @return
+#' @export
+#'
+#' @examples
+niggli_numbers <- function(df_chemistry) {
 
-niggli_calc <- function(df_chemistry) {
-
-  df_mol <- molar_mass()
+  df_mol <- geochem::molar_mass()
 
   df_chem_selected <- df_chemistry |>
     dplyr::rename_with(.fn = tolower, .cols=dplyr::everything()) |>
@@ -62,5 +66,3 @@ niggli_calc <- function(df_chemistry) {
   return(df_niggli)
 
 }
-
-niggli_calc(df_chemistry = df_chem)
