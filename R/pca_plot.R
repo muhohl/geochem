@@ -34,8 +34,8 @@ pca_plot <- function(pca_rec,
     base_plot <- df_pca %>%
         ggplot2::ggplot(ggplot2::aes(!!ggplot2::sym(glue::glue("PC{pc_x}")),
                                      !!sym(glue::glue("PC{pc_y}")))) +
-        ggplot2::labs(x = glue::glue("PC {pc_x} [{round(pca_all_var[pc_x], 2)}%]"),
-                      y = glue::glue("PC {pc_y} [{round(pca_all_var[pc_y], 2)}%]"),
+        ggplot2::labs(x = glue::glue("PC {pc_x} [{round(pca_all_var[pc_x], 1)}%]"),
+                      y = glue::glue("PC {pc_y} [{round(pca_all_var[pc_y], 1)}%]"),
                       caption = glue::glue("*n =* {pull(count(recipes::bake(pca_rec, new_data = NULL)))}"),
                       ...) +
         ggplot2::theme(axis.title.x = ggtext::element_markdown(),

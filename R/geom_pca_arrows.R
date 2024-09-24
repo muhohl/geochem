@@ -28,6 +28,8 @@ geom_pca_arrows <- function(pca_rec,
                             labels_fill = "white",
                             labels_color = "#0A537D",
                             labels_size = 0.25,
+                            label_font_size = 3,
+                            label_rect_padding = 0.25,
                             ...) {
 
     pca_wider <- pca_rec %>%
@@ -59,6 +61,8 @@ geom_pca_arrows <- function(pca_rec,
                                                    y = !!ggplot2::sym(glue::glue("PC{pc_y}")),
                                                    label = terms),
                                       label.size = labels_size,
+                                      size = label_font_size,
+                                      label.padding = label_rect_padding,
                                       fill = labels_fill,
                                       color = labels_color)
         ))
