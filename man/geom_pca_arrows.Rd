@@ -4,7 +4,20 @@
 \alias{geom_pca_arrows}
 \title{Eigen Value plot geom for tidymodel PCA}
 \usage{
-geom_pca_arrows(pca_rec, pc_x = 1, pc_y = 2, labels = TRUE, ...)
+geom_pca_arrows(
+  pca_rec,
+  pc_x = 1,
+  pc_y = 2,
+  labels = TRUE,
+  labels_fill = "white",
+  labels_color = "#0A537D",
+  labels_size = 0.25,
+  label_font_size = 3,
+  label_rect_padding = 0.25,
+  labels_font_size = 3,
+  labels_rect_padding = 0.25,
+  ...
+)
 }
 \arguments{
 \item{pca_rec}{The PCA recipe, a tidymodel object.}
@@ -15,7 +28,17 @@ geom_pca_arrows(pca_rec, pc_x = 1, pc_y = 2, labels = TRUE, ...)
 
 \item{labels}{If TRUE labels of the arrows are plotted.}
 
-\item{...}{Arguments passed on to geom_segment, which is drawing the arrows.}
+\item{labels_fill}{Fill color of the labels}
+
+\item{labels_color}{Color of the labels text}
+
+\item{labels_size}{Size of the labels}
+
+\item{labels_font_size}{Size of the font in the labels}
+
+\item{labels_rect_padding}{Size of the padding around the labels}
+
+\item{...}{Arguments passed on to geom_label_repel, which is drawing the arrows.}
 }
 \value{
 ggplot object

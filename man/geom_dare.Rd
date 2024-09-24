@@ -9,9 +9,6 @@ geom_dare(...)
 \arguments{
 \item{...}{Pass arguments on to geom_text and geom_line}
 }
-\value{
-
-}
 \description{
 geoms to draw fields defined by Dare et al. (2014)"
 }

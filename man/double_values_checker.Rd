@@ -17,9 +17,6 @@ function.}
 
 \item{small_scale}{Boolean value that decides if a small scale is necassary.}
 }
-\value{
-
-}
 \description{
 Helper function for the Laser Mapping function. Checks the potential legend
 breaks if some breaks occur twice. This might happen since values are rounded

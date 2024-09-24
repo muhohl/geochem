@@ -16,12 +16,6 @@ name of a column in the data frame.}
 
 \item{xlegend}{Label the x-axis.}
 }
-\value{
-
-}
 \description{
 Each element is a single plot of grouped boxplots.
-}
-\examples{
-
 }

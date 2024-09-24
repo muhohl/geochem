@@ -43,15 +43,9 @@ See ?ggplot2::scale_fill_viridis for more information.}
 
 \item{pcobj}{PCA object created by stats::prcomp.}
 }
-\value{
-
-}
 \description{
 Function that creates laser maps of selected elements. The function creates
 a list containing the individual laser plots. The list can than used to
 plot all the maps at once via ggpubr::ggarrange or individual plots can
 be plotted by selecting single elements out of the list.
-}
-\examples{
-
 }

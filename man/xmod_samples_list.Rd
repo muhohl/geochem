@@ -11,9 +11,6 @@ xmod_samples_list(file_pattern, directory)
 
 \item{directory}{Location of the directory which contains the XMOD csv's.}
 }
-\value{
-
-}
 \description{
 The function is loading all the the data frames in the specified directory that end with
 .csv in a list. The list is used in the following function to load the

@@ -11,12 +11,6 @@ round_up(x, nice = c(seq(1, 10, 0.1)))
 
 \item{nice}{Defines to which values x should be rounded up.}
 }
-\value{
-
-}
 \description{
 Rounds up nicely, used in the Laser Mapping function.
-}
-\examples{
-
 }

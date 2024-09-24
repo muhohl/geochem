@@ -36,9 +36,6 @@ small_breaks_definer(
 
 \item{smallest_scale_III}{Defines where the breaks in the legend occur}
 }
-\value{
-
-}
 \description{
 Helper functions that defines legend breaks for the Laser Maps.
 Only used for linear scales.

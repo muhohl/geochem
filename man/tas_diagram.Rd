@@ -11,9 +11,6 @@ tas_diagram(fields = TRUE, labels = TRUE)
 
 \item{labels}{If TRUE the names for the respective field are drawn.}
 }
-\value{
-
-}
 \description{
 Template for the popular Total Alkali Silica (TAS) diagram after Le Maitre (1989)
 The function should be used as a geom in a ggplot.

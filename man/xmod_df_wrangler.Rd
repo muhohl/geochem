@@ -20,13 +20,7 @@ xmod_df_wrangler(
 
 \item{csv_list_to_plot}{Can use the geochem::xmod_samples_list function as argument.}
 }
-\value{
-
-}
 \description{
 !! Warning this functions overwrites the original data frames!!
 Loads the data frames if the wt\% value is missing. Adds the wt\% for
-}
-\examples{
-
 }

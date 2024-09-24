@@ -11,9 +11,6 @@ clipping_element(elmnt, data)
 
 \item{data}{The laser map data set.}
 }
-\value{
-
-}
 \description{
 Shows a plotly map of the selected element to determine the cut off value
 for that paritcular element. The function doesn;t do the actual clipping.

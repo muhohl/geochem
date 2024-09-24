@@ -13,9 +13,6 @@ eigen_value_plot(pcobj, sel_pc = c(1, 2), ...)
 
 \item{...}{size of the labels and ratio of the plot}
 }
-\value{
-
-}
 \description{
 Plot the Eigen Values and their respective loadings from a PCA. Simple plot
 that doesn't include the data points.

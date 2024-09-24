@@ -29,6 +29,3 @@ ggplot object
 \description{
 Magnetite Classification Template after Dupuis&Beaudoin
 }
-\examples{
-
-}

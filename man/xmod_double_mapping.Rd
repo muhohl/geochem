@@ -47,14 +47,8 @@ are saved. !Warning! This might override existing data.}
 
 \item{filetype}{Filetype ending. Default is ".png".}
 }
-\value{
-
-}
 \description{
 Function that plots two XMOD maps, one with the selected minerals
 and one with the remaining minerals. This allows to highlight paragenetic
 relationships.
-}
-\examples{
-
 }

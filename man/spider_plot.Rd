@@ -31,13 +31,7 @@ single lines for those samples are plotted.}
 
 \item{...}{Arguments passed on to ggplot2::theme().}
 }
-\value{
-
-}
 \description{
 Produces spider plots highlighting different groups per facet and compares them
 to the remaining groups.
-}
-\examples{
-
 }

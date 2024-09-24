@@ -9,23 +9,19 @@ laser_map2(
   columns,
   option = "turbo",
   trans = "log",
-  breaks = c(10^(-3:5)),
+  breaks = c(10^(-4:6)),
   labels = scales::label_scientific(),
-  plot_label_start = "B",
-  plot_label = LETTERS,
+  plot_label_start = "b",
+  plot_label = letters,
   unit = "[ppm]",
-  pca_rec = NA
+  family = "serif",
+  pca_rec = NA,
+  option_Temp = "D"
 )
 }
 \arguments{
-\item{pca_rec}{}
-}
-\value{
-
+\item{option_Temp}{}
 }
 \description{
 Plot for Elemental Map
-}
-\examples{
-
 }

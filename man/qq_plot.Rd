@@ -27,9 +27,6 @@ qq_plot(
 \item{print}{If TRUE qq plots are printed directly if FALSE the qq-plots are
 saved to a list, which is returned.}
 }
-\value{
-
-}
 \description{
 Creates qq-plots for all elements specified and colors the plot
 according to group.

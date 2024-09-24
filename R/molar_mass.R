@@ -31,7 +31,7 @@ molar_mass <- function() {
     mol_f2 = 38,
     mol_cl2 = 70.9,
     mol_so2 = 64.07,
-    mol_s = 32.07,
-    )
+    mol_s = 32.07)
+
   return(df_mol)
 }
