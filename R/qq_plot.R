@@ -24,6 +24,8 @@
 qq_plot <- function(data,
                     elements,
                     group,
+                    linewidth = 1,
+                    size = 1,
                     color_scale = ggplot2::scale_color_viridis_d(),
                     theme = ggplot2::theme_dark(),
                     print = TRUE){
@@ -46,9 +48,9 @@ qq_plot <- function(data,
         p <- ggplot2::ggplot(data = data_arranged,
                              ggplot2::aes(x=t, y= !! quo_element)) +
             ggplot2::geom_qq_line(mapping = ggplot2::aes(sample = !! quo_element),
-                         size = 1.2) +
+                         linewidth = linewidth) +
             ggplot2::geom_point(ggplot2::aes(colour = !! quo_color),
-                       size = 3) +
+                       size = size) +
                 color_scale +
                 theme
 
