@@ -53,7 +53,7 @@ raster_map <- function(data, x, y, n = 100) {
   xy_expanded <- dplyr::bind_cols(xy_nxnygrid, xy_xygrid)
 
   raster_df <- dplyr::left_join(xy_expanded, csvt_ref) |>
-    dplyr::rename("x_raster" = 1, "y_raster" = 2)
+    dplyr::rename("x_raster" = new_x, "y_raster" = new_y)
 
   return(raster_df)
 }
