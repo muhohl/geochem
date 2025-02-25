@@ -8,6 +8,8 @@ qq_plot(
   data,
   elements,
   group,
+  linewidth = 1,
+  size = 1,
   color_scale = ggplot2::scale_color_viridis_d(),
   theme = ggplot2::theme_dark(),
   print = TRUE
