@@ -56,4 +56,5 @@ raster_map <- function(data, x, y, n = 100) {
     dplyr::rename("x_raster" = new_x, "y_raster" = new_y)
 
   return(raster_df)
+  print(paste0(x, "renamed to x_raster and ", y, "renamed to y_raster."))
 }
