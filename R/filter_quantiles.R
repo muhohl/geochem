@@ -25,7 +25,7 @@ filter_quantiles <- function(
   quantile_position = 20
 ) {
   data_095 <- data |>
-    dplyr::select({{ .cols }}) |>
+    dplyr::select(dplyr::any_of({{ .cols }})) |>
     dplyr::mutate(dplyr::across(dplyr::everything(), \(x) {
       stats::quantile(x, na.rm = TRUE, probs = probs)[[quantile_position]]
     })) |>
@@ -39,8 +39,8 @@ filter_quantiles <- function(
       dplyr::filter(
         !!dplyr::sym(element) <= data_095 |> dplyr::pull(element)
       ) |>
-      dplyr::select(ref, element)
-    data_quantiles <- dplyr::left_join(data_quantiles, data_filtered)
+      dplyr::select(dplyr::all_of(c("ref", element)))
+    data_quantiles <- dplyr::left_join(data_quantiles, data_filtered, by = join_by(ref))
   }
 
   data_quantiles <- data_quantiles |>
@@ -49,8 +49,9 @@ filter_quantiles <- function(
   data_new <- dplyr::left_join(
     data |>
       dplyr::mutate(ref = 1:dplyr::n()) |>
-      dplyr::select(-.cols),
-    data_quantiles
+      dplyr::select(-dplyr::any_of({{ .cols }})),
+    data_quantiles,
+    by = join_by(ref)
   ) |>
     dplyr::select(-ref)
 
