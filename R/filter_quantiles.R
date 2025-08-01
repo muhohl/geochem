@@ -22,8 +22,10 @@ filter_quantiles <- function(
   data,
   .cols,
   probs = seq(0, 1, 0.05),
-  quantile_position = 20
+  quantile_position = 20,
+  upper_or_lower = "upper"
 ) {
+
   data_095 <- data |>
     dplyr::select(dplyr::any_of({{ .cols }})) |>
     dplyr::mutate(dplyr::across(dplyr::everything(), \(x) {
@@ -31,15 +33,30 @@ filter_quantiles <- function(
     })) |>
     dplyr::distinct()
 
-  data_quantiles <- tibble::tibble(ref = 1:nrow(data))
+  orig_cols <- colnames(data)
 
-  for (element in .cols) {
-    data_filtered <- data |>
-      dplyr::mutate(ref = 1:dplyr::n()) |>
-      dplyr::filter(
-        !!dplyr::sym(element) <= data_095 |> dplyr::pull(element)
-      ) |>
-      dplyr::select(dplyr::all_of(c("ref", element)))
+  data_quantiles <- tibble::tibble(ref = 1:nrow(data))
+  for (n in seq_along(.cols)) {
+
+    element <- colnames(data[.cols[[n]]])
+
+    if (stringr::str_detect(upper_or_lower ,"u")) {
+      data_filtered <- data |>
+        dplyr::mutate(ref = 1:dplyr::n()) |>
+        dplyr::filter(
+          !!dplyr::sym(element) <= data_095 |> dplyr::pull(element)
+        ) |>
+        dplyr::select(dplyr::all_of(c("ref", element)))
+    } else if (stringr::str_detect(upper_or_lower, "l")) {
+      data_filtered <- data |>
+        dplyr::mutate(ref = 1:dplyr::n()) |>
+        dplyr::filter(
+          !!dplyr::sym(element) >= data_095 |> dplyr::pull(element)
+        ) |>
+        dplyr::select(dplyr::all_of(c("ref", element)))
+    } else {
+      stop("Please choose for upper_or_lower either 'upper' or 'lower' as an argument.")
+    }
     data_quantiles <- dplyr::left_join(data_quantiles, data_filtered, by = join_by(ref))
   }
 
@@ -53,7 +70,8 @@ filter_quantiles <- function(
     data_quantiles,
     by = join_by(ref)
   ) |>
-    dplyr::select(-ref)
+    dplyr::select(-ref) |>
+    select(orig_cols)
 
   return(data_new)
 }
