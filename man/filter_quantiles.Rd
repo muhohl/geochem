@@ -4,7 +4,13 @@
 \alias{filter_quantiles}
 \title{filter_quantiles}
 \usage{
-filter_quantiles(data, .cols, probs = seq(0, 1, 0.05), quantile_position = 20)
+filter_quantiles(
+  data,
+  .cols,
+  probs = seq(0, 1, 0.05),
+  quantile_position = 20,
+  upper_or_lower = "upper"
+)
 }
 \arguments{
 \item{data}{Provide data frame in tibble format.}
