@@ -14,7 +14,19 @@
 #'   Defaults to `elements`.
 #' @param ribbon If `TRUE` (default), the interquartile range is drawn as a
 #'   shaded ribbon. If `FALSE`, individual lines are plotted instead.
+#' @param ribbon_alpha Transparency of the IQR ribbon (default `0.2`).
+#'   Only used when `ribbon = TRUE`.
+#' @param linesize Line width for the median lines coloured by group
+#'   (default `2`).
 #' @param ncol Number of columns in the facet grid.
+#' @param facet If `TRUE` (default), each group is shown in its own panel via
+#'   [ggplot2::facet_wrap()]. Set to `FALSE` to overlay all groups on a single
+#'   panel.
+#' @param normalization Chondrite normalisation reference to apply before
+#'   plotting. One of `"mcdonough_sun_1995"`, `"boynton_1985"`,
+#'   `"nakamura_1974"`, or `"anders_grevesse_1989"`. Set to `NULL` (default)
+#'   to plot raw values. Elements not present in the normalisation table are
+#'   left unchanged.
 #' @param ... Additional arguments passed to [ggplot2::theme()].
 #'
 #' @return A ggplot object.
@@ -24,7 +36,8 @@
 #' ggspider(
 #'   data = whole_rock_data,
 #'   elements = c("rock_type", "La", "Ce", "Nd", "Sm", "Eu", "Gd", "Yb", "Lu"),
-#'   group = "rock_type"
+#'   group = "rock_type",
+#'   normalization = "mcdonough_sun_1995"
 #' )
 #'
 #' @import magrittr
@@ -34,9 +47,58 @@ ggspider <- function(
     group,
     levels = elements,
     ribbon = TRUE,
+    ribbon_alpha = 0.5,
+    linesize = 1.2,
+    facet = TRUE,
     ncol = NULL,
+    normalization = NULL,
     ...
 ) {
+    chondrite_norm <- tibble::tribble(
+        ~element , ~mcdonough_sun_1995 , ~boynton_1985 , ~nakamura_1974 , ~anders_grevesse_1989 ,
+        "La"     , 0.237               , 0.310         , 0.329          , 0.2347                ,
+        "Ce"     , 0.613               , 0.808         , 0.865          , 0.6032                ,
+        "Pr"     , 0.0928              , 0.122         , NA             , 0.0891                ,
+        "Nd"     , 0.457               , 0.600         , 0.630          , 0.4524                ,
+        "Sm"     , 0.148               , 0.195         , 0.203          , 0.1471                ,
+        "Eu"     , 0.0563              , 0.0735        , 0.0770         , 0.0560                ,
+        "Gd"     , 0.199               , 0.259         , 0.276          , 0.1966                ,
+        "Tb"     , 0.0361              , 0.0474        , NA             , 0.0363                ,
+        "Dy"     , 0.246               , 0.322         , 0.343          , 0.2427                ,
+        "Ho"     , 0.0546              , 0.0718        , NA             , 0.0556                ,
+        "Er"     , 0.160               , 0.210         , 0.225          , 0.1589                ,
+        "Tm"     , 0.0247              , 0.0324        , NA             , 0.0242                ,
+        "Yb"     , 0.161               , 0.209         , 0.220          , 0.1625                ,
+        "Lu"     , 0.0246              , 0.0322        , 0.0339         , 0.0243                ,
+        "Y"      , 1.57                , NA            , NA             , 1.56
+    )
+
+    valid_norms <- names(chondrite_norm)[-1]
+    y_label <- ""
+
+    if (!is.null(normalization)) {
+        if (!normalization %in% valid_norms) {
+            stop(paste0(
+                "'normalization' must be one of: ",
+                paste(valid_norms, collapse = ", "),
+                ". Use NULL to skip normalisation."
+            ))
+        }
+        elem_cols <- elements[elements != group]
+        norm_lookup <- stats::setNames(
+            chondrite_norm[[normalization]],
+            chondrite_norm$element
+        )
+        for (el in elem_cols) {
+            # strip unit suffixes like _ppm, _ppb, _wt so "La_ppm" matches "La"
+            base_el <- sub("_[a-zA-Z%]+$", "", el)
+            nv <- norm_lookup[base_el]
+            if (!is.na(nv) && nv > 0) {
+                data[[el]] <- data[[el]] / nv
+            }
+        }
+        y_label <- "REE/Chondrite"
+    }
     By_Group <- function(data, group, elements, levels) {
         quo_group <- ggplot2::sym(group)
         data <- data %>% dplyr::select(elements)
@@ -107,7 +169,7 @@ ggspider <- function(
                 ggplot2::aes(elements, Median, group = XXX),
                 alpha = 0.6,
                 color = "grey70",
-                size = 2
+                size = 0.5
             ) +
             ggplot2::geom_line(
                 data = data1,
@@ -117,7 +179,7 @@ ggspider <- function(
                     color = !!quo_group,
                     group = !!quo_group
                 ),
-                size = 2.5
+                size = linesize
             )
     } else {
         spider_p <- By_Gather_Ribbon(
@@ -136,13 +198,14 @@ ggspider <- function(
                     color = !!quo_group
                 ),
                 linetype = "blank",
-                alpha = 0.2
+                alpha = ribbon_alpha
             ) +
             ggplot2::geom_line(
                 data = data2,
-                ggplot2::aes(elements, Median, group = XXX, color = XXX),
+                ggplot2::aes(elements, Median, group = XXX),
                 alpha = 0.6,
-                size = 1
+                color = "grey70",
+                size = 0.5
             ) +
             ggplot2::geom_line(
                 ggplot2::aes(
@@ -151,20 +214,21 @@ ggspider <- function(
                     color = !!quo_group,
                     group = !!quo_group
                 ),
-                size = 2
+                size = linesize
             )
     }
 
+    if (facet) {
+        spider_p <- spider_p + ggplot2::facet_wrap(quo_group, ncol = ncol)
+    }
+
     spider_p <- spider_p +
-        ggplot2::facet_wrap(quo_group, ncol = ncol) +
         ggplot2::scale_y_log10(labels = prettyNum) +
-        viridis::scale_fill_viridis(discrete = TRUE) +
-        viridis::scale_color_viridis(discrete = TRUE) +
         ggplot2::theme(
             axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
             ...
         ) +
-        ggplot2::labs(x = "", y = "")
+        ggplot2::labs(x = "", y = y_label)
 
     return(spider_p)
 }

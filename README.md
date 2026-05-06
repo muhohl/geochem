@@ -90,12 +90,12 @@ dl_imputed <- Random_Number_Imputer(
 
 head(dl_imputed)
 #>   Sample_ID   Au_ppb   Pd_ppb   Pt_ppb Ag_ppb
-#> 1    DL-001 0.032271 0.035000 0.000640  2.542
-#> 2    DL-002 0.034248 0.069538 0.032867  1.503
-#> 3    DL-003 0.087000 0.500000 0.096118  1.806
-#> 4    DL-004 0.023023 0.095096 0.214000  1.017
-#> 5    DL-005 0.045203 0.110000 0.057395  0.831
-#> 6    DL-006 0.039917 0.035303 0.706000  4.201
+#> 1    DL-001 0.005248 0.035000 0.037111  2.542
+#> 2    DL-002 0.013856 0.027026 0.065825  1.503
+#> 3    DL-003 0.087000 0.500000 0.036944  1.806
+#> 4    DL-004 0.032791 0.040040 0.214000  1.017
+#> 5    DL-005 0.046217 0.110000 0.074987  0.831
+#> 6    DL-006 0.012683 0.095921 0.706000  4.201
 ```
 
 ------------------------------------------------------------------------
@@ -175,40 +175,21 @@ whole_rock_data |>
 
 ### REE spider plot
 
-Rare-earth spider diagrams are easy to produce by pivoting the data to
-long format with `tidyr` and plotting with ggplot2. `ggspider()` wraps
-this pattern with faceting and interquartile ribbons.
+`ggspider()` produces faceted spider diagrams with median lines and
+interquartile ribbons. Pass `normalization = "mcdonough_sun_1995"` (or
+another reference) to divide each element by its chondrite value before
+plotting; the y-axis label updates to “REE/Chondrite” automatically.
 
 ``` r
-library(tidyr)
-
 ree <- c("La", "Ce", "Nd", "Sm", "Eu", "Gd", "Yb", "Lu")
 
-whole_rock_data |>
-  dplyr::select(rock_type, dplyr::all_of(ree)) |>
-  tidyr::pivot_longer(-rock_type, names_to = "element", values_to = "ppm") |>
-  dplyr::mutate(element = factor(element, levels = ree)) |>
-  dplyr::group_by(rock_type, element) |>
-  dplyr::summarise(
-    median = median(ppm),
-    q25 = quantile(ppm, 0.25),
-    q75 = quantile(ppm, 0.75),
-    .groups = "drop"
-  ) |>
-  ggplot(aes(
-    x = element,
-    group = rock_type,
-    colour = rock_type,
-    fill = rock_type
-  )) +
-  geom_ribbon(aes(ymin = q25, ymax = q75), alpha = 0.55, colour = NA) +
-  geom_line(aes(y = median), linewidth = 1) +
-  facet_wrap(~rock_type, ncol = 2) +
-  scale_y_log10() +
-  scale_colour_brewer(palette = "Set1", guide = "none") +
-  scale_fill_brewer(palette = "Set1", guide = "none") +
-  labs(x = NULL, y = "ppm") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggspider(
+  data = whole_rock_data,
+  elements = c("rock_type", ree),
+  group = "rock_type",
+  levels = ree,
+  normalization = "mcdonough_sun_1995"
+)
 ```
 
 <img src="man/figures/README-spider-1.png" alt="" width="100%" />

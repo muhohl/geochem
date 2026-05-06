@@ -11,6 +11,7 @@ ggspider(
   levels = elements,
   ribbon = TRUE,
   ncol = NULL,
+  normalization = NULL,
   ...
 )
 }
@@ -32,6 +33,12 @@ shaded ribbon. If \code{FALSE}, individual lines are plotted instead.}
 
 \item{ncol}{Number of columns in the facet grid.}
 
+\item{normalization}{Chondrite normalisation reference to apply before
+plotting. One of \code{"mcdonough_sun_1995"}, \code{"boynton_1985"},
+\code{"nakamura_1974"}, or \code{"anders_grevesse_1989"}. Set to \code{NULL} (default)
+to plot raw values. Elements not present in the normalisation table are
+left unchanged.}
+
 \item{...}{Additional arguments passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 }
 \value{
@@ -46,7 +53,8 @@ showing all other groups in the background.
 ggspider(
   data = whole_rock_data,
   elements = c("rock_type", "La", "Ce", "Nd", "Sm", "Eu", "Gd", "Yb", "Lu"),
-  group = "rock_type"
+  group = "rock_type",
+  normalization = "mcdonough_sun_1995"
 )
 
 }
