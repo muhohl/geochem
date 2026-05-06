@@ -1,4 +1,3 @@
-
 #' filter_quantiles
 #'
 #' Replaces outliers with NAs.
@@ -25,7 +24,6 @@ filter_quantiles <- function(
   quantile_position = 20,
   upper_or_lower = "upper"
 ) {
-
   data_095 <- data |>
     dplyr::select(dplyr::any_of({{ .cols }})) |>
     dplyr::mutate(dplyr::across(dplyr::everything(), \(x) {
@@ -37,10 +35,9 @@ filter_quantiles <- function(
 
   data_quantiles <- tibble::tibble(ref = 1:nrow(data))
   for (n in seq_along(.cols)) {
-
     element <- colnames(data[.cols[[n]]])
 
-    if (stringr::str_detect(upper_or_lower ,"u")) {
+    if (stringr::str_detect(upper_or_lower, "u")) {
       data_filtered <- data |>
         dplyr::mutate(ref = 1:dplyr::n()) |>
         dplyr::filter(
@@ -55,9 +52,15 @@ filter_quantiles <- function(
         ) |>
         dplyr::select(dplyr::all_of(c("ref", element)))
     } else {
-      stop("Please choose for upper_or_lower either 'upper' or 'lower' as an argument.")
+      stop(
+        "Please choose for upper_or_lower either 'upper' or 'lower' as an argument."
+      )
     }
-    data_quantiles <- dplyr::left_join(data_quantiles, data_filtered, by = join_by(ref))
+    data_quantiles <- dplyr::left_join(
+      data_quantiles,
+      data_filtered,
+      by = join_by(ref)
+    )
   }
 
   data_quantiles <- data_quantiles |>
@@ -71,7 +74,7 @@ filter_quantiles <- function(
     by = join_by(ref)
   ) |>
     dplyr::select(-ref) |>
-    select(orig_cols)
+    dplyr::select(orig_cols)
 
   return(data_new)
 }
