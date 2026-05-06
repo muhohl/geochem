@@ -1,0 +1,234 @@
+---
+title: "Introduction to geochem"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to geochem}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+## Overview
+
+**geochem** provides tools for wrangling, analysing, and visualising geochemical
+data, with particular emphasis on Laser-ICP-MS datasets. This vignette walks
+through the main function categories using three built-in synthetic datasets.
+
+```{r load}
+library(geochem)
+library(dplyr)
+library(ggplot2)
+```
+
+---
+
+## Built-in test datasets
+
+The package ships with three synthetic datasets that mirror typical Laser-ICP-MS
+and whole-rock geochemistry workflows.
+
+### `whole_rock_data`
+
+Fifty whole-rock analyses across four volcanic rock types (Basalt, Andesite,
+Dacite, Rhyolite). Columns include major oxides in wt % and trace elements in ppm.
+
+```{r wr-glimpse}
+dplyr::glimpse(whole_rock_data)
+```
+
+### `laser_map_data`
+
+A 50 × 50 point laser map (2 500 analyses) with x/y coordinates and eight
+element channels in ppm / ppb. A synthetic ore zone is embedded near the centre.
+
+```{r lm-glimpse}
+dplyr::glimpse(laser_map_data)
+```
+
+### `detection_limit_data`
+
+Forty PGE assay results where a fraction of values fall below the instrument
+detection limit, stored as strings such as `"<0.05"`.
+
+```{r dl-glimpse}
+head(detection_limit_data)
+```
+
+---
+
+## 1 · Imputing below-detection-limit values
+
+`Random_Number_Imputer()` replaces `"<X"` strings with a random value uniformly
+drawn from `[0, X]`.
+
+```{r random-imputer}
+dl_imputed <- Random_Number_Imputer(
+  data = detection_limit_data,
+  columns = 2:5, # Au_ppb, Pd_ppb, Pt_ppb, Ag_ppb
+  split_symbol = "<"
+)
+
+head(dl_imputed)
+```
+
+---
+
+## 2 · Converting oxides to elements
+
+`oxides_to_elements()` converts wt % oxide columns to wt % element using
+stoichiometric mass ratios. Column names are matched case-insensitively against
+standard oxide formulae (Na2O, MgO, Al2O3, …).
+
+```{r oxides-to-elements}
+elements_pct <- oxides_to_elements(whole_rock_data)
+dplyr::glimpse(elements_pct)
+```
+
+---
+
+## 3 · Niggli numbers
+
+`niggli_numbers()` normalises a major-oxide composition to the Niggli
+parameters used in classical petrochemical classification.
+
+```{r niggli}
+niggli <- niggli_numbers(whole_rock_data)
+dplyr::glimpse(niggli)
+```
+
+---
+
+## 4 · Removing outliers with `filter_quantiles()`
+
+`filter_quantiles()` replaces values beyond a chosen quantile threshold with
+`NA`, leaving the rest of the dataframe intact. Here we remove the top 5 % of
+Cu and Zn from the laser map data (quantile_position 19 = 95th percentile in
+the default `probs = seq(0, 1, 0.05)` sequence).
+
+```{r filter-quantiles}
+laser_clean <- filter_quantiles(
+  data = laser_map_data,
+  .cols = list(3, 4), # Fe_ppm, Cu_ppm
+  quantile_position = 19,
+  upper_or_lower = "upper"
+)
+
+# NAs introduced at the top tail
+summary(laser_clean[c("Fe_ppm", "Cu_ppm")])
+```
+
+---
+
+## 5 · Spider (multi-element) plots
+
+`spider_plot()` produces faceted spider diagrams — one panel per group — with
+median lines and interquartile ribbons. The first element of the `elements`
+vector is used as the grouping variable; the remainder are plotted on the x-axis.
+
+```{r spider-plot, fig.height = 6}
+trace_elements <- c("La", "Ce", "Nd", "Sm", "Eu", "Gd", "Yb", "Lu")
+element_order <- trace_elements
+
+spider_plot(
+  data = whole_rock_data,
+  elements = c("rock_type", trace_elements),
+  group = "rock_type",
+  levels = element_order,
+  ribbon = TRUE
+)
+```
+
+---
+
+## 6 · Box plots by group
+
+`box_plot()` produces one log-scaled boxplot per element, coloured by group, with
+sample counts and mean values annotated.
+
+```{r box-plot}
+box_plot(
+  data = whole_rock_data,
+  elements = list(
+    which(names(whole_rock_data) == "Cu"),
+    which(names(whole_rock_data) == "Ni"),
+    which(names(whole_rock_data) == "Zn")
+  ),
+  group = "rock_type"
+)
+```
+
+---
+
+## 7 · TAS classification diagram
+
+`tas_diagram()` returns a list of ggplot2 layers that draw the Total Alkali
+Silica fields. Map `SiO2` to x and `Na2O + K2O` to y, then add the template.
+
+```{r tas, fig.height = 5}
+whole_rock_data |>
+  dplyr::mutate(TotalAlkali = Na2O + K2O) |>
+  ggplot2::ggplot(ggplot2::aes(x = SiO2, y = TotalAlkali, colour = rock_type)) +
+  geochem::tas_diagram() +
+  ggplot2::geom_point(size = 2.5, alpha = 0.85) +
+  ggplot2::scale_colour_brewer(palette = "Set1", name = "Rock type") +
+  ggplot2::labs(x = "SiO₂ (wt %)", y = "Na₂O + K₂O (wt %)") +
+  ggplot2::theme_classic(base_size = 13)
+```
+
+---
+
+## 8 · Raster mapping
+
+`raster_map()` bins continuous x/y coordinates into an n × n grid. This is
+useful for regularising irregular laser-ablation paths before further analysis.
+
+```{r raster-map}
+raster_df <- raster_map(
+  data = laser_map_data,
+  x = x,
+  y = y,
+  n = 25 # 25×25 grid
+)
+
+dplyr::glimpse(raster_df)
+```
+
+---
+
+## 9 · Laser element maps
+
+`laser_map()` produces publication-quality elemental maps from laser-ablation
+point data. It automatically selects a log or linear colour scale based on the
+data range, calculates sensible legend breaks, and aligns the legend height to
+the plot height.
+
+```{r laser-map, fig.height = 4}
+maps <- laser_map(
+  data = laser_map_data,
+  selected_elements = list(3, 4, 7), # Fe_ppm, Cu_ppm, Au_ppb
+  Log_Trans = FALSE,
+  unit_title = "(ppm / ppb)",
+  fontsize = 11
+)
+
+# Display the Cu map
+maps[[2]]
+```
+
+---
+
+## Session info
+
+```{r session}
+sessionInfo()
+```
