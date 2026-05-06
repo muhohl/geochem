@@ -131,7 +131,7 @@ summary(laser_clean[c("Fe_ppm", "Cu_ppm")])
 
 ## 5 · Spider (multi-element) plots
 
-`spider_plot()` produces faceted spider diagrams — one panel per group — with
+`ggspider()` produces faceted spider diagrams — one panel per group — with
 median lines and interquartile ribbons. The first element of the `elements`
 vector is used as the grouping variable; the remainder are plotted on the x-axis.
 
@@ -139,7 +139,7 @@ vector is used as the grouping variable; the remainder are plotted on the x-axis
 trace_elements <- c("La", "Ce", "Nd", "Sm", "Eu", "Gd", "Yb", "Lu")
 element_order <- trace_elements
 
-spider_plot(
+ggspider(
   data = whole_rock_data,
   elements = c("rock_type", trace_elements),
   group = "rock_type",

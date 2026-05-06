@@ -31,7 +31,7 @@ geochemical workflows:
 | Dataset | Description |
 |----|----|
 | `whole_rock_data` | 50 whole-rock analyses (Basalt / Andesite / Dacite / Rhyolite) with major oxides in wt % and trace elements in ppm |
-| `laser_map_data` | 2 500-point 50 × 50 laser map with 8 element channels and a synthetic ore zone |
+| `laser_map_data` | 2 500-point 50 × 50 laser map with 8 element channels |
 | `detection_limit_data` | 40 PGE assay rows with below-detection values stored as `"<X"` strings |
 
 ``` r
@@ -77,7 +77,9 @@ dplyr::glimpse(whole_rock_data)
 ### Imputing below-detection-limit values
 
 `Random_Number_Imputer()` replaces `"<X"` strings with a uniform random
-value drawn from `[0, X]`.
+value drawn from `[0, X]`. `Random_Number_Imputer()` searches for the
+“\<” symbole and replaces the number with a random value between 0 and
+that number.
 
 ``` r
 dl_imputed <- Random_Number_Imputer(
@@ -88,21 +90,21 @@ dl_imputed <- Random_Number_Imputer(
 
 head(dl_imputed)
 #>   Sample_ID   Au_ppb   Pd_ppb   Pt_ppb Ag_ppb
-#> 1    DL-001 0.043206 0.035000 0.043284  2.542
-#> 2    DL-002 0.036645 0.008286 0.015190  1.503
-#> 3    DL-003 0.087000 0.500000 0.022977  1.806
-#> 4    DL-004 0.049291 0.097658 0.214000  1.017
-#> 5    DL-005 0.040492 0.110000 0.073202  0.831
-#> 6    DL-006 0.048200 0.024157 0.706000  4.201
+#> 1    DL-001 0.032271 0.035000 0.000640  2.542
+#> 2    DL-002 0.034248 0.069538 0.032867  1.503
+#> 3    DL-003 0.087000 0.500000 0.096118  1.806
+#> 4    DL-004 0.023023 0.095096 0.214000  1.017
+#> 5    DL-005 0.045203 0.110000 0.057395  0.831
+#> 6    DL-006 0.039917 0.035303 0.706000  4.201
 ```
 
 ------------------------------------------------------------------------
 
 ### Converting oxides to elements
 
-`oxides_to_elements()` converts wt % oxide columns (Na₂O, MgO, Al₂O₃, …)
-to wt % element using stoichiometric mass ratios. Column matching is
-case-insensitive.
+`oxides_to_elements()` converts wt % oxide columns for common elements
+(Na₂O, MgO, Al₂O₃, …) to wt % element using stoichiometric mass ratios.
+Column matching is case-insensitive.
 
 ``` r
 elements_pct <- oxides_to_elements(whole_rock_data)
@@ -174,8 +176,8 @@ whole_rock_data |>
 ### REE spider plot
 
 Rare-earth spider diagrams are easy to produce by pivoting the data to
-long format with `tidyr` and plotting with ggplot2. `spider_plot()`
-wraps this pattern with faceting and interquartile ribbons.
+long format with `tidyr` and plotting with ggplot2. `ggspider()` wraps
+this pattern with faceting and interquartile ribbons.
 
 ``` r
 library(tidyr)
@@ -199,14 +201,13 @@ whole_rock_data |>
     colour = rock_type,
     fill = rock_type
   )) +
-  geom_ribbon(aes(ymin = q25, ymax = q75), alpha = 0.15, colour = NA) +
+  geom_ribbon(aes(ymin = q25, ymax = q75), alpha = 0.55, colour = NA) +
   geom_line(aes(y = median), linewidth = 1) +
   facet_wrap(~rock_type, ncol = 2) +
   scale_y_log10() +
   scale_colour_brewer(palette = "Set1", guide = "none") +
   scale_fill_brewer(palette = "Set1", guide = "none") +
   labs(x = NULL, y = "ppm") +
-  theme_dark(base_size = 12) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -245,7 +246,7 @@ patchwork::wrap_plots(maps[1:2])
 |----|----|
 | Data wrangling | `Random_Number_Imputer()`, `oxides_to_elements()`, `niggli_numbers()`, `filter_quantiles()`, `raster_map()` |
 | Classification diagrams | `geom_tas_diagram()`, `mgt_class_D_B()`, `geom_dare()` |
-| Distribution plots | `box_plot()`, `hist_plot()`, `qq_plot()`, `spider_plot()` |
+| Distribution plots | `box_plot()`, `hist_plot()`, `qq_plot()`, `ggspider()` |
 | PCA | `pca_plot()`, `geom_pca_arrows()`, `eigen_value_plot()` |
 | Laser maps | `laser_map2()`, `clipping_element()` (`laser_map()` deprecated) |
 | XMOD | `xmod_df_wrangler()`, `xmod_double_mapping()` |
