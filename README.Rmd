@@ -6,14 +6,14 @@ output: github_document
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse  = TRUE,
-  comment   = "#>",
-  fig.path  = "man/figures/README-",
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
   out.width = "100%",
   fig.width = 7,
   fig.height = 5,
-  warning   = FALSE,
-  message   = FALSE
+  warning = FALSE,
+  message = FALSE
 )
 library(geochem)
 library(dplyr)
@@ -65,8 +65,8 @@ value drawn from `[0, X]`.
 
 ```{r bdl}
 dl_imputed <- Random_Number_Imputer(
-  data         = detection_limit_data,
-  columns      = 2:5,
+  data = detection_limit_data,
+  columns = 2:5,
   split_symbol = "<"
 )
 
@@ -96,10 +96,10 @@ Below we remove the top 5 % of Fe and Cu from the laser map
 
 ```{r quantiles}
 laser_clean <- filter_quantiles(
-  data              = laser_map_data,
-  .cols             = c("Fe_ppm", "Cu_ppm"),
+  data = laser_map_data,
+  .cols = c("Fe_ppm", "Cu_ppm"),
   quantile_position = 19,
-  upper_or_lower    = "upper"
+  upper_or_lower = "upper"
 )
 
 summary(laser_clean[c("Fe_ppm", "Cu_ppm")])
@@ -109,7 +109,7 @@ summary(laser_clean[c("Fe_ppm", "Cu_ppm")])
 
 ### TAS classification diagram
 
-`tas_diagram()` returns ggplot2 layers for the Total Alkali Silica
+`geom_tas_diagram()` returns ggplot2 layers for the Total Alkali Silica
 classification. Map SiO₂ to x and Na₂O + K₂O to y.
 
 ```{r tas}
@@ -118,7 +118,7 @@ library(ggplot2)
 whole_rock_data |>
   dplyr::mutate(TotalAlkali = Na2O + K2O) |>
   ggplot(aes(x = SiO2, y = TotalAlkali)) +
-  tas_diagram() +
+  geom_tas_diagram() +
   geom_point(aes(colour = rock_type), size = 2.5, alpha = 0.85) +
   scale_colour_brewer(palette = "Set1", name = "Rock type") +
   labs(x = "SiO₂ (wt %)", y = "Na₂O + K₂O (wt %)") +
@@ -143,10 +143,18 @@ whole_rock_data |>
   tidyr::pivot_longer(-rock_type, names_to = "element", values_to = "ppm") |>
   dplyr::mutate(element = factor(element, levels = ree)) |>
   dplyr::group_by(rock_type, element) |>
-  dplyr::summarise(median = median(ppm), q25 = quantile(ppm, 0.25),
-                   q75 = quantile(ppm, 0.75), .groups = "drop") |>
-  ggplot(aes(x = element, group = rock_type, colour = rock_type,
-             fill = rock_type)) +
+  dplyr::summarise(
+    median = median(ppm),
+    q25 = quantile(ppm, 0.25),
+    q75 = quantile(ppm, 0.75),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(
+    x = element,
+    group = rock_type,
+    colour = rock_type,
+    fill = rock_type
+  )) +
   geom_ribbon(aes(ymin = q25, ymax = q75), alpha = 0.15, colour = NA) +
   geom_line(aes(y = median), linewidth = 1) +
   facet_wrap(~rock_type, ncol = 2) +
@@ -166,17 +174,18 @@ whole_rock_data |>
 point data. The colour scale is chosen automatically based on the column name:
 viridis for regular elements, a diverging gradient for ratios or PCA scores,
 and Okabe–Ito for cluster maps.
+Ideally used with `patchwork::wrap_plots()` or `cowplot::plot_grid()` functions.
 
 ```{r laser, fig.height = 4}
 maps <- laser_map2(
-  data    = laser_map_data,
-  columns = c(3, 4, 7),   # Fe_ppm, Cu_ppm, Au_ppb
-  trans   = "log",
-  unit    = "[ppm / ppb]"
+  data = laser_map_data,
+  columns = c(3, 4, 7), # Fe_ppm, Cu_ppm, Au_ppb
+  trans = "log",
+  unit = ""
 )
 
-# Cu map
-maps[[2]]
+# Fe and Cu map
+patchwork::wrap_plots(maps[1:2])
 ```
 
 ---
@@ -186,7 +195,7 @@ maps[[2]]
 | Category | Functions |
 |---|---|
 | Data wrangling | `Random_Number_Imputer()`, `oxides_to_elements()`, `niggli_numbers()`, `filter_quantiles()`, `raster_map()` |
-| Classification diagrams | `tas_diagram()`, `mgt_class_D_B()`, `geom_dare()` |
+| Classification diagrams | `geom_tas_diagram()`, `mgt_class_D_B()`, `geom_dare()` |
 | Distribution plots | `box_plot()`, `hist_plot()`, `qq_plot()`, `spider_plot()` |
 | PCA | `pca_plot()`, `geom_pca_arrows()`, `eigen_value_plot()` |
 | Laser maps | `laser_map2()`, `clipping_element()` (`laser_map()` deprecated) |

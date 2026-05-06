@@ -6,9 +6,6 @@
 \usage{
 hist_plot(data, x_axis, bins)
 }
-\arguments{
-\item{bins}{}
-}
 \value{
 ggplot objects
 }

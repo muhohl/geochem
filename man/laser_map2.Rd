@@ -2,7 +2,7 @@
 % Please edit documentation in R/laser_map2.R
 \name{laser_map2}
 \alias{laser_map2}
-\title{Plot for Elemental Map}
+\title{Elemental Laser Map Plots}
 \usage{
 laser_map2(
   data,
@@ -13,15 +13,70 @@ laser_map2(
   labels = scales::label_scientific(),
   plot_label_start = "b",
   plot_label = letters,
-  unit = "[ppm]",
+  unit = "(ppm)",
   family = "serif",
   pca_rec = NA,
   option_Temp = "D"
 )
 }
 \arguments{
-\item{option_Temp}{}
+\item{data}{Data frame containing \code{x} and \code{y} coordinate columns plus
+numeric element channels. Capital \code{X}/\code{Y} are silently renamed to
+lowercase.}
+
+\item{columns}{Integer vector of column positions to plot.}
+
+\item{option}{Viridis colour palette option for standard elements.
+One of \code{"A"} – \code{"H"} or named options such as \code{"turbo"} (default).}
+
+\item{trans}{Scale transformation applied to standard element channels.
+\code{"log"} (default) or \code{"identity"} for linear.}
+
+\item{breaks}{Numeric vector of colour-scale break positions
+(default \code{10^(-4:6)}).}
+
+\item{labels}{Label formatter for the colour scale.
+See \code{\link[scales:label_scientific]{scales::label_scientific()}}.}
+
+\item{plot_label_start}{Single letter from which subplot labels begin
+(e.g. \code{"b"} produces \verb{b)}, \verb{c)}, …). Pass \code{NA} or \code{""} to suppress
+labels (default \code{"b"}).}
+
+\item{plot_label}{Character vector used as the label alphabet
+(default \code{letters}).}
+
+\item{unit}{Unit string appended to each plot title (default \code{"[ppm]"}).}
+
+\item{family}{Font family: \code{"serif"} (default), \code{"sans"}, or \code{"mono"}.}
+
+\item{pca_rec}{Optional tidymodels \code{recipe} object. When a \code{"PC"} column
+is detected the recipe is used to extract explained-variance percentages
+for the plot title.}
+
+\item{option_Temp}{Viridis option used for \code{"Temperature"} columns
+(default \code{"D"}).}
+}
+\value{
+A named list of ggplot objects.
 }
 \description{
-Plot for Elemental Map
+Creates publication-quality elemental maps from laser-ablation point data.
+Returns a list of ggplot objects — one per selected element — that can be
+arranged with \code{\link[ggpubr:ggarrange]{ggpubr::ggarrange()}} or displayed individually.
+}
+\details{
+Colour scale is chosen automatically based on the element name:
+\itemize{
+\item \code{"/"} in name → diverging blue–grey–red gradient (ratios)
+\item \code{"PC"} in name → diverging \code{scico::vikO} palette (PCA scores)
+\item \code{"kNN"} in name → Okabe–Ito categorical colours (cluster maps)
+\item \code{"Temperature"} in name → viridis option controlled by \code{option_Temp}
+\item all other columns → viridis \code{option} with \code{trans} transformation
+}
+}
+\examples{
+maps <- laser_map2(laser_map_data, columns = c(3, 4))
+maps[[1]]   # Fe map
+maps[[2]]   # Cu map
+
 }

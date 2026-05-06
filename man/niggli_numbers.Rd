@@ -6,9 +6,6 @@
 \usage{
 niggli_numbers(df_chemistry)
 }
-\arguments{
-\item{df_chemistry}{}
-}
 \description{
 Niggli Numbers
 }

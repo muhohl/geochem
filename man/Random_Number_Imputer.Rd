@@ -6,9 +6,6 @@
 \usage{
 Random_Number_Imputer(data, columns, split_symbol = "<", digits = 6)
 }
-\arguments{
-\item{digits}{}
-}
 \value{
 data
 }

@@ -21,31 +21,43 @@ laser_map(
 \item{data}{Laser map data frame. If PCA are plotted the PC columns must be merged with
 the laser map data frame.}
 
-\item{selected_elements}{Vector containing the selected elements and PC's will be plotted.}
+\item{selected_elements}{Integer vector of column positions to plot.}
 
-\item{Log_Trans}{Data set containing a column called "Log" which indicates if a map should be
-log transformed. If not specified all elements are log transformed.}
+\item{Log_Trans}{\code{FALSE} (default) to log-transform all elements, or a data frame with a
+\code{"Log"} column indicating per-element transformation.}
 
-\item{sel_pc}{Selecting the principal components from the pcobj to calculate the explained
-variance shown by the laser map.}
+\item{pca_rec}{PCA object (\code{stats::prcomp} or tidymodels \code{recipe}) used when plotting PC
+columns.}
 
-\item{unit_title}{Specify the unit of the laser map for the plot title as a string. Has no
-effect on the values.}
+\item{sel_pc}{Integer vector of PC indices used to compute explained variance when
+\code{pca_rec} is a \code{prcomp} object.}
 
-\item{fontsize}{Fontsize used in the plot.}
+\item{unit_title}{Unit string appended to each plot title (e.g. \code{"(ppm)"}).}
 
-\item{font}{Font type, options are "serif", "sans" and "mono".}
+\item{fontsize}{Base font size in points (default 14).}
 
-\item{labels}{Argument for the scale notation. See ?scales:: for more information.}
+\item{font}{Font family: \code{"serif"}, \code{"sans"}, or \code{"mono"} (default \code{"serif"}).}
 
-\item{...}{Options for viridis color scale. Includes "A", "B", "C", "D".
-See ?ggplot2::scale_fill_viridis for more information.}
+\item{labels}{Label formatter for the colour scale. See \code{\link[scales:label_scientific]{scales::label_scientific()}}.}
 
-\item{pcobj}{PCA object created by stats::prcomp.}
+\item{...}{Viridis colour palette option passed to
+\code{\link[ggplot2:scale_fill_viridis_c]{ggplot2::scale_fill_viridis_c()}}. One of \code{"A"}, \code{"B"}, \code{"C"}, \code{"D"}.}
+}
+\value{
+A list of ggplot objects, one per selected element.
 }
 \description{
-Function that creates laser maps of selected elements. The function creates
-a list containing the individual laser plots. The list can than used to
-plot all the maps at once via ggpubr::ggarrange or individual plots can
-be plotted by selecting single elements out of the list.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+\code{laser_map()} has been superseded by \code{\link[=laser_map2]{laser_map2()}}, which provides a
+simpler interface and more consistent colour-scale handling. Please migrate
+existing code to \code{laser_map2()}.
+}
+\examples{
+# Prefer laser_map2() for new code:
+# laser_map2(laser_map_data, columns = c(3, 4))
+
+}
+\seealso{
+\code{\link[=laser_map2]{laser_map2()}} for the current replacement.
 }

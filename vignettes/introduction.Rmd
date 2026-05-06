@@ -171,14 +171,14 @@ box_plot(
 
 ## 7 · TAS classification diagram
 
-`tas_diagram()` returns a list of ggplot2 layers that draw the Total Alkali
+`geom_tas_diagram()` returns a list of ggplot2 layers that draw the Total Alkali
 Silica fields. Map `SiO2` to x and `Na2O + K2O` to y, then add the template.
 
 ```{r tas, fig.height = 5}
 whole_rock_data |>
   dplyr::mutate(TotalAlkali = Na2O + K2O) |>
   ggplot2::ggplot(ggplot2::aes(x = SiO2, y = TotalAlkali)) +
-  geochem::tas_diagram() +
+  geochem::geom_tas_diagram() +
   ggplot2::geom_point(
     ggplot2::aes(colour = rock_type),
     size = 2.5,
