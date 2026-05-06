@@ -52,6 +52,7 @@ oxides_to_elements <- function(data) {
   fe_x <- 2 * fe / fe2o3
 
   result <- data |>
+    dplyr::rename_with(tolower) |>
     dplyr::select(dplyr::contains(
       c(
         "na2o",

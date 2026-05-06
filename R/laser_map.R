@@ -1,40 +1,46 @@
 #' Laser Maps Plot
 #'
-#' Function that creates laser maps of selected elements. The function creates
-#' a list containing the individual laser plots. The list can than used to
-#' plot all the maps at once via ggpubr::ggarrange or individual plots can
-#' be plotted by selecting single elements out of the list.
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `laser_map()` has been superseded by [laser_map2()], which provides a
+#' simpler interface and more consistent colour-scale handling. Please migrate
+#' existing code to `laser_map2()`.
 #'
 #' @param data
 #' Laser map data frame. If PCA are plotted the PC columns must be merged with
 #' the laser map data frame.
 #' @param selected_elements
-#' Vector containing the selected elements and PC's will be plotted.
+#' Integer vector of column positions to plot.
 #' @param Log_Trans
-#' Data set containing a column called "Log" which indicates if a map should be
-#' log transformed. If not specified all elements are log transformed.
-#' @param pcobj
-#' PCA object created by stats::prcomp.
+#' `FALSE` (default) to log-transform all elements, or a data frame with a
+#' `"Log"` column indicating per-element transformation.
+#' @param pca_rec
+#' PCA object (`stats::prcomp` or tidymodels `recipe`) used when plotting PC
+#' columns.
 #' @param sel_pc
-#' Selecting the principal components from the pcobj to calculate the explained
-#' variance shown by the laser map.
+#' Integer vector of PC indices used to compute explained variance when
+#' `pca_rec` is a `prcomp` object.
 #' @param unit_title
-#' Specify the unit of the laser map for the plot title as a string. Has no
-#' effect on the values.
+#' Unit string appended to each plot title (e.g. `"(ppm)"`).
 #' @param fontsize
-#' Fontsize used in the plot.
+#' Base font size in points (default 14).
 #' @param font
-#' Font type, options are "serif", "sans" and "mono".
+#' Font family: `"serif"`, `"sans"`, or `"mono"` (default `"serif"`).
 #' @param labels
-#' Argument for the scale notation. See ?scales:: for more information.
+#' Label formatter for the colour scale. See [scales::label_scientific()].
 #' @param ...
-#' Options for viridis color scale. Includes "A", "B", "C", "D".
-#' See ?ggplot2::scale_fill_viridis for more information.
+#' Viridis colour palette option passed to
+#' [ggplot2::scale_fill_viridis_c()]. One of `"A"`, `"B"`, `"C"`, `"D"`.
 #'
-#' @return
+#' @return A list of ggplot objects, one per selected element.
 #' @export
 #'
+#' @seealso [laser_map2()] for the current replacement.
+#'
 #' @examples
+#' # Prefer laser_map2() for new code:
+#' # laser_map2(laser_map_data, columns = c(3, 4))
 #'
 #' @import magrittr
 laser_map <- function(data,
@@ -47,6 +53,10 @@ laser_map <- function(data,
                      font = "serif",
                      labels = scales::label_scientific(),
                      ...) {
+
+    .Deprecated("laser_map2",
+                msg = paste0("laser_map() is deprecated. ",
+                             "Please use laser_map2() instead."))
 
     # Create empty vectors for the following for loop
     plot_list <- list()

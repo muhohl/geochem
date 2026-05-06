@@ -1,37 +1,64 @@
-
-#' Plot for Elemental Map
+#' Elemental Laser Map Plots
 #'
-#' @param data
-#' @param columns
-#' @param option
-#' @param trans
-#' @param breaks
-#' @param labels
-#' @param label_start
-#' @param letters
-#' @param unit
-#' @param family
-#' @param pca_rec
-#' @param option_Temp
+#' Creates publication-quality elemental maps from laser-ablation point data.
+#' Returns a list of ggplot objects — one per selected element — that can be
+#' arranged with [ggpubr::ggarrange()] or displayed individually.
 #'
-#' @return
+#' Colour scale is chosen automatically based on the element name:
+#' * `"/"` in name → diverging blue–grey–red gradient (ratios)
+#' * `"PC"` in name → diverging `scico::vikO` palette (PCA scores)
+#' * `"kNN"` in name → Okabe–Ito categorical colours (cluster maps)
+#' * `"Temperature"` in name → viridis option controlled by `option_Temp`
+#' * all other columns → viridis `option` with `trans` transformation
+#'
+#' @param data Data frame containing `x` and `y` coordinate columns plus
+#'   numeric element channels. Capital `X`/`Y` are silently renamed to
+#'   lowercase.
+#' @param columns Integer vector of column positions to plot.
+#' @param option Viridis colour palette option for standard elements.
+#'   One of `"A"` – `"H"` or named options such as `"turbo"` (default).
+#' @param trans Scale transformation applied to standard element channels.
+#'   `"log"` (default) or `"identity"` for linear.
+#' @param breaks Numeric vector of colour-scale break positions
+#'   (default `10^(-4:6)`).
+#' @param labels Label formatter for the colour scale.
+#'   See [scales::label_scientific()].
+#' @param plot_label_start Single letter from which subplot labels begin
+#'   (e.g. `"b"` produces `b)`, `c)`, …). Pass `NA` or `""` to suppress
+#'   labels (default `"b"`).
+#' @param plot_label Character vector used as the label alphabet
+#'   (default `letters`).
+#' @param unit Unit string appended to each plot title (default `"[ppm]"`).
+#' @param family Font family: `"serif"` (default), `"sans"`, or `"mono"`.
+#' @param pca_rec Optional tidymodels `recipe` object. When a `"PC"` column
+#'   is detected the recipe is used to extract explained-variance percentages
+#'   for the plot title.
+#' @param option_Temp Viridis option used for `"Temperature"` columns
+#'   (default `"D"`).
+#'
+#' @return A named list of ggplot objects.
 #' @export
 #'
 #' @examples
+#' maps <- laser_map2(laser_map_data, columns = c(3, 4))
+#' maps[[1]]   # Fe map
+#' maps[[2]]   # Cu map
 #'
 #' @import magrittr
-laser_map2 <- function(data,
-                       columns,
-                       option = "turbo",
-                       trans = "log",
-                       breaks = c(10^(-4:6)),
-                       labels = scales::label_scientific(),
-                       plot_label_start = "b",
-                       plot_label = letters,
-                       unit = "[ppm]",
-                       family = "serif",
-                       pca_rec = NA,
-                       option_Temp = "D") {
+laser_map2 <- function(
+    data,
+    columns,
+    option = "turbo",
+    trans = "log",
+    breaks = c(10^(-4:6)),
+    labels = scales::label_scientific(),
+    plot_label_start = "b",
+    plot_label = letters,
+    unit = "(ppm)",
+    family = "serif",
+    pca_rec = NA,
+    option_Temp = "D"
+) {
     pl.maps <- list()
     j <- which(tolower(plot_label_start) == tolower(plot_label))
     i <- 1
@@ -39,8 +66,14 @@ laser_map2 <- function(data,
     # Include warning message if plot_label_start and plot_label are not the
     # same case
 
-    if (!is.na(plot_label_start)&plot_label_start != ""&plot_label_start != "NA") {
-        if(plot_label[j] != plot_label_start) warning("Check your plot labels, the case might be wrong")
+    if (
+        !is.na(plot_label_start) &
+            plot_label_start != "" &
+            plot_label_start != "NA"
+    ) {
+        if (plot_label[j] != plot_label_start) {
+            warning("Check your plot labels, the case might be wrong")
+        }
     }
 
     # Check for X,Y coordinates name and change them to lower case
@@ -54,8 +87,11 @@ laser_map2 <- function(data,
     }
 
     for (element in names(data)[columns]) {
-
-        if (is.na(plot_label_start)|plot_label_start == ""|plot_label_start == "NA") {
+        if (
+            is.na(plot_label_start) |
+                plot_label_start == "" |
+                plot_label_start == "NA"
+        ) {
             plot_enumerator <- ""
         } else {
             if (stringr::str_detect(plot_label_start, "[[:lower:]]")) {
@@ -65,41 +101,44 @@ laser_map2 <- function(data,
             }
         }
 
-        p.map <- ggplot2::ggplot(data = data,
-                                 ggplot2::aes(x, y,
-                                     fill = !! ggplot2::sym(element))) +
+        p.map <- ggplot2::ggplot(
+            data = data,
+            ggplot2::aes(x, y, fill = !!ggplot2::sym(element))
+        ) +
             ggplot2::geom_raster(interpolate = TRUE) +
             ggplot2::coord_fixed(ratio = 1) +
-            ggplot2::scale_y_discrete(expand = c(0,0)) +
-            ggplot2::scale_x_discrete(expand = c(0,0)) +
-            ggplot2::labs(fill = "",
-                          y = "",
-                          x = "") +
+            ggplot2::scale_y_discrete(expand = c(0, 0)) +
+            ggplot2::scale_x_discrete(expand = c(0, 0)) +
+            ggplot2::labs(fill = "", y = "", x = "") +
             ggplot2::theme_void() +
-            ggplot2::theme(panel.border = ggplot2::element_blank(),
-                  panel.background = ggplot2::element_rect(fill = "black"),
-                  plot.margin = ggplot2::margin(r = 2, b = 2, l = 2),
-                  text = ggplot2::element_text(family = family,
-                                      size = 16)) +
-            ggplot2::guides(fill = ggplot2::guide_colorbar(barwidth = ggplot2::unit(0.6, "lines"),
-                                         barheight = ggplot2::unit(6, "lines"),
-                                         ticks.colour = "black",
-                                         frame.colour = "black"))
+            ggplot2::theme(
+                panel.border = ggplot2::element_blank(),
+                panel.background = ggplot2::element_rect(fill = "black"),
+                plot.margin = ggplot2::margin(r = 2, b = 2, l = 2),
+                text = ggplot2::element_text(family = family, size = 16)
+            ) +
+            ggplot2::guides(
+                fill = ggplot2::guide_colorbar(
+                    barwidth = ggplot2::unit(0.6, "lines"),
+                    barheight = ggplot2::unit(6, "lines"),
+                    ticks.colour = "black",
+                    frame.colour = "black"
+                )
+            )
 
         if (stringr::str_detect(element, "/")) {
             p.map <- p.map +
-                ggplot2::scale_fill_gradient2(trans = "log",
-                                              low = "#001096",
-                                              high = "#E60000",
-                                              mid = "grey80",
-                                              breaks = breaks,
-                                              expand = c(0,0),
-                                              labels = scales::label_number(accuracy = 0.01)) +
+                ggplot2::scale_fill_gradient2(
+                    trans = "log",
+                    low = "#001096",
+                    high = "#E60000",
+                    mid = "grey80",
+                    breaks = breaks,
+                    expand = c(0, 0),
+                    labels = scales::label_number(accuracy = 0.01)
+                ) +
                 ggplot2::ggtitle(paste0(plot_enumerator, element))
-
-            }
-        else if (stringr::str_detect(element, "PC")) {
-
+        } else if (stringr::str_detect(element, "PC")) {
             if (class(pca_rec) == "recipe") {
                 expl_var_all <- pca_rec %>%
                     recipes::tidy(id = "pca", type = "variance") %>%
@@ -107,40 +146,39 @@ laser_map2 <- function(data,
                     dplyr::pull(value)
                 sel_pc_new <- stringr::str_extract(element, "\\d\\d|\\d")
                 expl_var <- round(expl_var_all[as.numeric(sel_pc_new)], 2)
-                }
-
-            p.map <- p.map +
-                scico::scale_fill_scico(palette = "vikO",
-                                        midpoint = 0) +
-                ggplot2::ggtitle(paste0(plot_enumerator, element,
-                                        sprintf(" - %0.1f%% expl. var.", expl_var)))
             }
 
-        else if (stringr::str_detect(element, "kNN")) {
+            p.map <- p.map +
+                scico::scale_fill_scico(palette = "vikO", midpoint = 0) +
+                ggplot2::ggtitle(paste0(
+                    plot_enumerator,
+                    element,
+                    sprintf(" - %0.1f%% expl. var.", expl_var)
+                ))
+        } else if (stringr::str_detect(element, "kNN")) {
             p.map <- p.map +
                 see::scale_fill_okabeito() +
                 ggplot2::ggtitle(paste0(plot_enumerator, element)) +
                 ggplot2::guides(fill = "legend")
-            }
-
-        else if (stringr::str_detect(element, "Temperature")) {
+        } else if (stringr::str_detect(element, "Temperature")) {
             p.map <- p.map +
                 ggplot2::scale_fill_viridis_c(option = option_Temp) +
                 ggplot2::ggtitle(paste0(plot_enumerator, element, " [°C]"))
-        }
-        else {
+        } else {
             p.map <- p.map +
-                    ggplot2::scale_fill_viridis_c(option = option,
-                                                  trans = trans,
-                                                  breaks = breaks, # Not ideal because breaks are now set for log trans
-                                                  labels = labels) +
-                    ggplot2::ggtitle(paste0(plot_enumerator, element, " ", unit)) # Take the at the beginning of the for loop, since it constant no matter which if loop is entered
-            }
+                ggplot2::scale_fill_viridis_c(
+                    option = option,
+                    trans = trans,
+                    breaks = breaks, # Not ideal because breaks are now set for log trans
+                    labels = labels
+                ) +
+                ggplot2::ggtitle(paste0(plot_enumerator, element, " ", unit)) # Take the at the beginning of the for loop, since it constant no matter which if loop is entered
+        }
 
         pl.maps[[i]] <- p.map
-        i <- i+1
-        j <- j+1
-        }
+        i <- i + 1
+        j <- j + 1
+    }
 
     return(pl.maps)
-    }
+}

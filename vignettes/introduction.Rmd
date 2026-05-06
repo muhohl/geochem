@@ -118,7 +118,7 @@ the default `probs = seq(0, 1, 0.05)` sequence).
 ```{r filter-quantiles}
 laser_clean <- filter_quantiles(
   data = laser_map_data,
-  .cols = list(3, 4), # Fe_ppm, Cu_ppm
+  .cols = c("Fe_ppm", "Cu_ppm"),
   quantile_position = 19,
   upper_or_lower = "upper"
 )
@@ -177,9 +177,13 @@ Silica fields. Map `SiO2` to x and `Na2O + K2O` to y, then add the template.
 ```{r tas, fig.height = 5}
 whole_rock_data |>
   dplyr::mutate(TotalAlkali = Na2O + K2O) |>
-  ggplot2::ggplot(ggplot2::aes(x = SiO2, y = TotalAlkali, colour = rock_type)) +
+  ggplot2::ggplot(ggplot2::aes(x = SiO2, y = TotalAlkali)) +
   geochem::tas_diagram() +
-  ggplot2::geom_point(size = 2.5, alpha = 0.85) +
+  ggplot2::geom_point(
+    ggplot2::aes(colour = rock_type),
+    size = 2.5,
+    alpha = 0.85
+  ) +
   ggplot2::scale_colour_brewer(palette = "Set1", name = "Rock type") +
   ggplot2::labs(x = "SiO₂ (wt %)", y = "Na₂O + K₂O (wt %)") +
   ggplot2::theme_classic(base_size = 13)
@@ -207,18 +211,18 @@ dplyr::glimpse(raster_df)
 
 ## 9 · Laser element maps
 
-`laser_map()` produces publication-quality elemental maps from laser-ablation
-point data. It automatically selects a log or linear colour scale based on the
-data range, calculates sensible legend breaks, and aligns the legend height to
-the plot height.
+`laser_map2()` produces publication-quality elemental maps from laser-ablation
+point data. The colour scale is chosen automatically from the column name:
+viridis for regular elements, a diverging gradient for ratios or PCA scores,
+and Okabe–Ito colours for cluster maps. `laser_map()` is deprecated and will
+be removed in a future release — migrate to `laser_map2()`.
 
 ```{r laser-map, fig.height = 4}
-maps <- laser_map(
+maps <- laser_map2(
   data = laser_map_data,
-  selected_elements = list(3, 4, 7), # Fe_ppm, Cu_ppm, Au_ppb
-  Log_Trans = FALSE,
-  unit_title = "(ppm / ppb)",
-  fontsize = 11
+  columns = c(3, 4, 7), # Fe_ppm, Cu_ppm, Au_ppb
+  trans = "log",
+  unit = ""
 )
 
 # Display the Cu map

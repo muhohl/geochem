@@ -12,8 +12,8 @@ make_df <- function() {
 
 test_that("filter_quantiles replaces upper outliers with NA", {
   df     <- make_df()
-  result <- filter_quantiles(df, .cols = list(2, 3), quantile_position = 19,
-                             upper_or_lower = "upper")
+  result <- filter_quantiles(df, .cols = c("Cu_ppm", "Zn_ppm"),
+                             quantile_position = 19, upper_or_lower = "upper")
 
   # The 5 injected extreme values (500 / 800) should now be NA
   expect_true(any(is.na(result$Cu_ppm)))
