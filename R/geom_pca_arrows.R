@@ -69,9 +69,6 @@ geom_pca_arrows <- function(pca_rec,
                                       label.size = labels_size,
                                       size = label_font_size,
                                       label.padding = label_rect_padding,
-                                      size = labels_font_size,
-                                      label.padding = labels_rect_padding,
-                                      fill = labels_fill,
                                       color = labels_color)
         ))
     }
