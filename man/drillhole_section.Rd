@@ -12,7 +12,8 @@ drillhole_section(
   hole_id,
   view_angle = 0,
   colour = NULL,
-  linesize = 1,
+  pointsize = 1,
+  linewidth = 0.4,
   reverse_z = TRUE,
   ...
 )
@@ -36,7 +37,9 @@ horizontal projection is used for the section plane (see Details).}
 \item{colour}{Name of a column to map to colour. If \code{NULL} (default),
 traces are coloured by \code{hole_id}.}
 
-\item{linesize}{Width of the drillhole trace lines (default \code{1}).}
+\item{pointsize}{Size of the drillhole trace points (default \code{1}).}
+
+\item{linewidth}{Width of the drillhole trace lines shown in grey (default \code{0.4}).}
 
 \item{reverse_z}{If \code{TRUE} (default), the y-axis is reversed so depth
 increases downward. Set to \code{FALSE} when \code{z} is an elevation (RL).}

@@ -50,9 +50,9 @@
 #' drillhole_section(dh, hole_id = "hole_id", view_angle = 0, colour = "Au_ppm")
 drillhole_section <- function(
     data,
-    x = "x",
-    y = "y",
-    z = "z",
+    x = "mid_x",
+    y = "mid_y",
+    z = "mid_z",
     hole_id,
     view_angle = 0,
     colour = NULL,

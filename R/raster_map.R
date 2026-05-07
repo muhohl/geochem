@@ -16,7 +16,6 @@
 #'
 #' @examples
 
-
 raster_map <- function(data, x, y, n = 100) {
   x_vector <- seq(
     min(data |> dplyr::pull({{ x }})),
@@ -32,10 +31,9 @@ raster_map <- function(data, x, y, n = 100) {
   # indicate each observation with the right coordinate index
   csvt_ref <- data |>
     dplyr::mutate(
-        index_x = purrr::map_int({{ x }}, ~ max(which(x_vector <= .x))),
-        index_y = purrr::map_int({{ y }}, ~ max(which(y_vector <= .x)))
-    ) #|>
-  #select(mid_x, mid_y, bi_ppm, cu_pct, index_x, index_y)
+      index_x = purrr::map_int({{ x }}, ~ max(which(x_vector <= .x))),
+      index_y = purrr::map_int({{ y }}, ~ max(which(y_vector <= .x)))
+    )
 
   xy_basic <- tibble::tibble(
     b_x = x_vector,
@@ -56,5 +54,4 @@ raster_map <- function(data, x, y, n = 100) {
     dplyr::rename("x_raster" = new_x, "y_raster" = new_y)
 
   return(raster_df)
-  print(paste0(x, "renamed to x_raster and ", y, "renamed to y_raster."))
 }
