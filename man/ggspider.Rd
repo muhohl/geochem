@@ -10,6 +10,9 @@ ggspider(
   group,
   levels = elements,
   ribbon = TRUE,
+  ribbon_alpha = 0.5,
+  linesize = 1.2,
+  facet = TRUE,
   ncol = NULL,
   normalization = NULL,
   ...
@@ -30,6 +33,16 @@ Defaults to \code{elements}.}
 
 \item{ribbon}{If \code{TRUE} (default), the interquartile range is drawn as a
 shaded ribbon. If \code{FALSE}, individual lines are plotted instead.}
+
+\item{ribbon_alpha}{Transparency of the IQR ribbon (default \code{0.2}).
+Only used when \code{ribbon = TRUE}.}
+
+\item{linesize}{Line width for the median lines coloured by group
+(default \code{2}).}
+
+\item{facet}{If \code{TRUE} (default), each group is shown in its own panel via
+\code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. Set to \code{FALSE} to overlay all groups on a single
+panel.}
 
 \item{ncol}{Number of columns in the facet grid.}
 
