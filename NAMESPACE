@@ -3,6 +3,7 @@
 export(Random_Number_Imputer)
 export(box_plot)
 export(clipping_element)
+export(desurvey_holes)
 export(double_values_checker)
 export(drillhole_section)
 export(eigen_value_plot)
