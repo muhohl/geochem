@@ -6,9 +6,9 @@
 \usage{
 raster_section(
   data,
-  x = "x",
-  y = "y",
-  z = "z",
+  x = "mid_x",
+  y = "mid_y",
+  z = "mid_z",
   view_angle = 0,
   n = 100,
   agg_fn = mean,

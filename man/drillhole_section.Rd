@@ -4,7 +4,7 @@
 \alias{drillhole_section}
 \title{Drillhole cross-section projection}
 \usage{
-drillhole_section(data, x = "x", y = "y", view_angle = 0)
+drillhole_section(data, x = "mid_x", y = "mid_y", z = "mid_z", view_angle = 0)
 }
 \arguments{
 \item{data}{Data frame containing drillhole coordinate and assay columns.}
@@ -24,17 +24,24 @@ a viewing angle and returns a tibble with a \code{proj_x} column appended. The
 result can be passed directly to \code{\link[=raster_section]{raster_section()}} or plotted manually with
 ggplot2.
 }
-\details{
-The projection follows:
-\deqn{x_{\text{proj}} = x \cos(\theta) - y \sin(\theta)}
-where \eqn{\theta} is \code{view_angle} in degrees. Cardinal views:\tabular{ll}{
+\section{Projection}{
+
+For angles in the easting-dominant range (≤ 45° or ≥ 315°, and 135°–225°)
+the full rotation formula is used:
+\deqn{proj\_x = x \cos(\theta) - y \sin(\theta)}
+For angles in the northing-dominant range (45°–135° and 225°–315°) the
+formula is rotated 90° so that northing (\code{y}) is the primary axis:
+\deqn{proj\_x = x \cos(\theta) + y \sin(\theta)}
+This gives pure \code{y} at θ = 90° and pure \verb{−y} at θ = 270°. A message is
+emitted whenever this branch is used.\tabular{ll}{
    \code{view_angle} \tab \code{proj_x} \cr
-   0 / 360 \tab x (easting) \cr
-   90 \tab −y (−northing) \cr
-   180 \tab −x \cr
-   270 \tab y (northing) \cr
+   0 / 360 \tab \verb{x·cos θ − y·sin θ} → x \cr
+   90 \tab \verb{x·cos θ + y·sin θ} → y (with message) \cr
+   180 \tab \verb{x·cos θ − y·sin θ} → −x \cr
+   270 \tab \verb{x·cos θ + y·sin θ} → −y (with message) \cr
 }
 }
+
 \examples{
 dh <- data.frame(
   hole_id = rep(c("DH-01", "DH-02"), each = 10),
@@ -45,4 +52,5 @@ dh <- data.frame(
 )
 
 drillhole_section(dh, view_angle = 45)
+drillhole_section(dh, view_angle = 90)   # switches to y projection
 }

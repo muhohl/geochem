@@ -45,6 +45,8 @@ downward, default \code{"DIP"}).}
 \value{
 A tibble with all original \code{survey} columns plus:
 \describe{
+\item{\code{from}, \code{to}}{Along-hole depth (metres) at the start and end of
+the interval, starting at 0 from the collar.}
 \item{\code{from_x}, \code{from_y}, \code{from_z}}{Easting, northing, and elevation at
 the start of the interval.}
 \item{\code{to_x}, \code{to_y}, \code{to_z}}{Easting, northing, and elevation at the

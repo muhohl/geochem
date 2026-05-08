@@ -4,8 +4,62 @@
 \alias{niggli_numbers}
 \title{Niggli Numbers}
 \usage{
-niggli_numbers(df_chemistry)
+niggli_numbers(data)
+}
+\arguments{
+\item{data}{Data frame containing major element oxide columns (wt \%).
+Accepted oxide names (case-insensitive): \code{SiO2}, \code{TiO2}, \code{Al2O3},
+\code{Fe2O3}, \code{FeO}, \code{MnO}, \code{MgO}, \code{CaO}, \code{Na2O}, \code{K2O}, \code{P2O5}, \code{Cr2O3},
+\code{SrO}, \code{BaO}, \code{Li2O}, \code{Cs2O}, \code{Rb2O}, \code{V2O5}, \code{NiO}, \code{H2O}, \code{CO2},
+\code{F2}, \code{Cl2}, \code{SO2}, \code{S}.}
+}
+\value{
+A tibble with all non-oxide columns from \code{data} followed by:
+\describe{
+\item{\code{al}, \code{c}, \code{alk}, \code{fm}}{Primary Niggli numbers (sum to 100).}
+\item{\code{si}, \code{ti}, \code{p}}{Secondary Niggli numbers (unbounded scale).}
+\item{\code{k}}{K2O / (Na2O + K2O + …) — alkali ratio (0–1).}
+\item{\code{mg}}{MgO / (Fe + Mn + Mg + …) — magnesian ratio (0–1).}
+\item{\code{al-alk}}{al minus alk.}
+\item{\code{al/alk}}{al divided by alk.}
+\item{\code{(al+fm)-(c+alk)}}{Niggli sum used in binary diagrams.}
+\item{\code{qz}}{Silica saturation index for rocks with al/alk > 1:
+si − (100 + 4·alk).}
+\item{\verb{qz*}}{Silica saturation index for rocks with al/alk < 1:
+si − (100 + 3·al + alk).}
+\item{\code{h}, \code{n_co2}, \code{f}, \code{cl}, \code{n_so2}, \code{n_s}}{Volatile Niggli numbers
+(less commonly used).}
+}
 }
 \description{
-Niggli Numbers
+Converts a geochemical data frame of major element oxides into Niggli
+Numbers following the "Niggli Modified" scheme described by McDonald (2024).
+Column name matching is case-insensitive (\code{K2O}, \code{k2o}, and \code{K2o} are all
+recognised).
+}
+\section{Niggli Modified scheme}{
+
+Chromium is combined with Fe, Mn and Mg in the \code{fm} term (not with Al as in
+the classic scheme). Vanadium is combined with Al. The four primary numbers
+(\code{al}, \code{c}, \code{alk}, \code{fm}) always sum to 100.
+
+Oxide columns are identified by lowercase name. Any recognised oxide that is
+absent from \code{data} is treated as zero so that partial analyses are handled
+gracefully. All other columns (e.g. sample identifiers) are preserved and
+prepended to the output.
+}
+
+\examples{
+# Anorthite (CaAl2Si2O8): expect al ≈ 50, c ≈ 50, si ≈ 100
+anorthite <- data.frame(SiO2 = 43.2, Al2O3 = 36.7, CaO = 20.1)
+niggli_numbers(anorthite)
+
+# Forsterite (Mg2SiO4): expect fm = 100, mg = 1, si ≈ 50
+forsterite <- data.frame(SiO2 = 42.7, MgO = 57.3)
+niggli_numbers(forsterite)
+}
+\references{
+McDonald, I. (2024). Reimagining Niggli Numbers for modern data
+applications in petrology and exploration geochemistry.
+\emph{Chemical Geology}, 650, 121915.
 }
