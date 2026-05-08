@@ -1,68 +1,118 @@
-
 #' Niggli Numbers
 #'
-#' @param df_chemistry
+#' Converts a geochemical data frame of major element oxides into Niggli
+#' Numbers following the "Niggli Modified" scheme described by McDonald (2024).
+#' Column name matching is case-insensitive (`K2O`, `k2o`, and `K2o` are all
+#' recognised).
 #'
-#' @return
+#' @section Niggli Modified scheme:
+#' Chromium is combined with Fe, Mn and Mg in the `fm` term (not with Al as in
+#' the classic scheme). Vanadium is combined with Al. The four primary numbers
+#' (`al`, `c`, `alk`, `fm`) always sum to 100.
+#'
+#' Oxide columns are identified by lowercase name. Any recognised oxide that is
+#' absent from `data` is treated as zero so that partial analyses are handled
+#' gracefully. All other columns (e.g. sample identifiers) are preserved and
+#' prepended to the output.
+#'
+#' @param data Data frame containing major element oxide columns (wt %).
+#'   Accepted oxide names (case-insensitive): `SiO2`, `TiO2`, `Al2O3`,
+#'   `Fe2O3`, `FeO`, `MnO`, `MgO`, `CaO`, `Na2O`, `K2O`, `P2O5`, `Cr2O3`,
+#'   `SrO`, `BaO`, `Li2O`, `Cs2O`, `Rb2O`, `V2O5`, `NiO`, `H2O`, `CO2`,
+#'   `F2`, `Cl2`, `SO2`, `S`.
+#'
+#' @return A tibble with all non-oxide columns from `data` followed by:
+#'   \describe{
+#'     \item{`al`, `c`, `alk`, `fm`}{Primary Niggli numbers (sum to 100).}
+#'     \item{`si`, `ti`, `p`}{Secondary Niggli numbers (unbounded scale).}
+#'     \item{`k`}{K2O / (Na2O + K2O + …) — alkali ratio (0–1).}
+#'     \item{`mg`}{MgO / (Fe + Mn + Mg + …) — magnesian ratio (0–1).}
+#'     \item{`al-alk`}{al minus alk.}
+#'     \item{`al/alk`}{al divided by alk.}
+#'     \item{`(al+fm)-(c+alk)`}{Niggli sum used in binary diagrams.}
+#'     \item{`qz`}{Silica saturation index for rocks with al/alk > 1:
+#'       si − (100 + 4·alk).}
+#'     \item{`qz*`}{Silica saturation index for rocks with al/alk < 1:
+#'       si − (100 + 3·al + alk).}
+#'     \item{`h`, `n_co2`, `f`, `cl`, `n_so2`, `n_s`}{Volatile Niggli numbers
+#'       (less commonly used).}
+#'   }
 #' @export
 #'
+#' @references McDonald, I. (2024). Reimagining Niggli Numbers for modern data
+#'   applications in petrology and exploration geochemistry.
+#'   *Chemical Geology*, 650, 121915.
+#'
 #' @examples
-niggli_numbers <- function(df_chemistry) {
+#' # Anorthite (CaAl2Si2O8): expect al ≈ 50, c ≈ 50, si ≈ 100
+#' anorthite <- data.frame(SiO2 = 43.2, Al2O3 = 36.7, CaO = 20.1)
+#' niggli_numbers(anorthite)
+#'
+#' # Forsterite (Mg2SiO4): expect fm = 100, mg = 1, si ≈ 50
+#' forsterite <- data.frame(SiO2 = 42.7, MgO = 57.3)
+#' niggli_numbers(forsterite)
+niggli_numbers <- function(data) {
+  mol_wts <- c(
+    sio2 = 60, tio2 = 80, al2o3 = 102, fe2o3 = 160, feo = 72,
+    mno = 71, mgo = 40, cao = 56, na2o = 62, k2o = 94,
+    p2o5 = 142, cr2o3 = 152, sro = 93.6, bao = 153.3,
+    li2o = 29.88, cs2o = 281.8, rb2o = 186.94, v2o5 = 181.88,
+    nio = 74.02, h2o = 18, co2 = 44, f2 = 38, cl2 = 70.9,
+    so2 = 64.07, s = 32.07
+  )
 
-  df_mol <- geochem::molar_mass()
+  data_lc <- dplyr::rename_with(data, tolower)
 
-  df_chem_selected <- df_chemistry |>
-    dplyr::rename_with(.fn = tolower, .cols=dplyr::everything()) |>
-    dplyr::select(dplyr::any_of(stringr::str_remove(colnames(df_mol), 'mol_')))
+  # Compute molar values by name, not position; missing oxides → 0
+  mol <- tibble::as_tibble(
+    setNames(
+      lapply(names(mol_wts), function(ox) {
+        if (ox %in% names(data_lc)) {
+          dplyr::coalesce(data_lc[[ox]] / mol_wts[[ox]], 0)
+        } else {
+          rep(0, nrow(data_lc))
+        }
+      }),
+      names(mol_wts)
+    )
+  )
 
-  df_chem_mol <- mapply('/', df_chem_selected, df_mol) |>
-    tibble::as_tibble()
+  # Niggli Modified: Cr goes to fm (not al); V goes to al
+  al_r  <- mol$al2o3 + mol$v2o5
+  c_r   <- mol$cao   + mol$sro  + mol$bao
+  alk_r <- mol$na2o  + mol$k2o  + mol$li2o + mol$cs2o + mol$rb2o
+  fm_r  <- 2 * mol$fe2o3 + mol$feo + mol$mgo + mol$mno +
+           2 * mol$cr2o3 + mol$nio
+  total <- al_r + c_r + alk_r + fm_r
 
-  df_niggli <- df_chem_mol |>
-    dplyr::mutate(
-           al =    al2o3+v2o5,
-           c =     cao+sro+bao,
-           alk =   na2o+k2o+li2o+cs2o+rb2o,
-           fm =    (2*fe2o3)+feo+mgo+mno+(2*cr2o3),
-           si =    sio2,
-           ti =    tio2,
-           p =     p2o5,
-           h_h2o = h2o,
-           n_co2 = co2,
-           f =     f2,
-           cl =    cl2,
-           n_so2 = so2,
-           n_s =   s) |>
-    dplyr::mutate(total = al+c+alk+fm) |>
-    dplyr::mutate(
-           al =     (al/total)*100,
-           c =      (c/total)*100,
-           alk =    (alk/total)*100,
-           fm =     (fm/total)*100,
-           si =     (si/total)*100,
-           ti =     (ti/total)*100,
-           p =      (p/total)*100,
-           h_h2o =  (h_h2o/total)*100,
-           n_co2 =  (n_co2/total)*100,
-           f =      (f/total)*100,
-           cl =     (cl/total)*100,
-           n_so2 =  (n_so2/total)*100,
-           n_s =    (s/total)*100) |>
-    dplyr::mutate(prim_total = al+c+alk+fm) |>
-    dplyr::mutate(
-           k = k2o/alk,
-           mg = mgo/fm,
-           `al-alk` = al-alk,
-           `al/alk` = al/alk) |>
-    dplyr::mutate(
-           qz = si-((6*alk)+(2*`al-alk`)+(c-`al-alk`+fm)),
-           `qz_al/alk<1` = si-(100+(3*al)+alk),
-           `(al+fm)-(c+alk)` = (al+fm)-(c+alk)) |>
-    dplyr::select(-total) |>
-    dplyr::select((dplyr::last_col(20)):dplyr::last_col()) |>
-    dplyr::bind_cols(df_chemistry |> dplyr::select(1)) |>
-    dplyr::select(dplyr::last_col(),1:dplyr::last_col(1))
+  niggli <- tibble::tibble(
+    al              = al_r  / total * 100,
+    c               = c_r   / total * 100,
+    alk             = alk_r / total * 100,
+    fm              = fm_r  / total * 100,
+    si              = mol$sio2 / total * 100,
+    ti              = mol$tio2 / total * 100,
+    p               = mol$p2o5 / total * 100,
+    k               = mol$k2o  / alk_r,
+    mg              = mol$mgo  / fm_r,
+    `al-alk`        = al - alk,
+    `al/alk`        = al_r / alk_r,
+    `(al+fm)-(c+alk)` = al + fm - c - alk,
+    qz              = si - (100 + 4 * alk),
+    `qz*`           = si - (100 + 3 * al + alk),
+    h               = mol$h2o / total * 100,
+    n_co2           = mol$co2 / total * 100,
+    f               = mol$f2  / total * 100,
+    cl              = mol$cl2 / total * 100,
+    n_so2           = mol$so2 / total * 100,
+    n_s             = mol$s   / total * 100
+  )
 
-  return(df_niggli)
-
+  # Carry forward all non-oxide columns (e.g. sample IDs, hole IDs)
+  id_cols <- setdiff(names(data_lc), names(mol_wts))
+  if (length(id_cols) > 0) {
+    dplyr::bind_cols(data_lc[, id_cols, drop = FALSE], niggli)
+  } else {
+    niggli
+  }
 }
