@@ -44,17 +44,19 @@
 #'
 #' raster_section(dh, view_angle = 45, n = 20, group_col = "lithology")
 raster_section <- function(
-    data,
-    x = "x",
-    y = "y",
-    z = "z",
-    view_angle = 0,
-    n = 100,
-    agg_fn = mean,
-    group_col = NULL
+  data,
+  x = "mid_x",
+  y = "mid_y",
+  z = "mid_z",
+  view_angle = 0,
+  n = 100,
+  agg_fn = mean,
+  group_col = NULL
 ) {
   angle_rad <- (view_angle %% 360) * pi / 180
-  data[[".__proj_x__"]] <- data[[x]] * cos(angle_rad) - data[[y]] * sin(angle_rad)
+  data[[".__proj_x__"]] <- data[[x]] *
+    cos(angle_rad) -
+    data[[y]] * sin(angle_rad)
 
   proj_vector <- seq(
     min(data[[".__proj_x__"]]),
@@ -78,14 +80,17 @@ raster_section <- function(
 
   xy_basic <- tibble::tibble(
     proj_x_raster = proj_vector,
-    index_x       = seq_along(proj_vector),
-    z_raster      = z_vector,
-    index_z       = seq_along(z_vector)
+    index_x = seq_along(proj_vector),
+    z_raster = z_vector,
+    index_z = seq_along(z_vector)
   )
 
   xy_expanded <- dplyr::bind_cols(
     expand.grid(index_x = xy_basic$index_x, index_z = xy_basic$index_z),
-    expand.grid(proj_x_raster = xy_basic$proj_x_raster, z_raster = xy_basic$z_raster)
+    expand.grid(
+      proj_x_raster = xy_basic$proj_x_raster,
+      z_raster = xy_basic$z_raster
+    )
   )
 
   raster_df <- dplyr::left_join(xy_expanded, data, by = c("index_x", "index_z"))
@@ -98,8 +103,13 @@ raster_section <- function(
   raster_df |>
     dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
     dplyr::mutate(n = dplyr::n()) |>
-    dplyr::mutate(dplyr::across(where(is.numeric), \(col) agg_fn(col, na.rm = TRUE))) |>
-    dplyr::distinct(dplyr::across(dplyr::all_of(group_vars)), .keep_all = TRUE) |>
+    dplyr::mutate(dplyr::across(where(is.numeric), \(col) {
+      agg_fn(col, na.rm = TRUE)
+    })) |>
+    dplyr::distinct(
+      dplyr::across(dplyr::all_of(group_vars)),
+      .keep_all = TRUE
+    ) |>
     dplyr::ungroup() |>
     dplyr::select(-".__proj_x__")
 }
