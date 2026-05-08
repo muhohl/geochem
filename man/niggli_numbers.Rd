@@ -7,11 +7,16 @@
 niggli_numbers(data)
 }
 \arguments{
-\item{data}{Data frame containing major element oxide columns (wt \%).
-Accepted oxide names (case-insensitive): \code{SiO2}, \code{TiO2}, \code{Al2O3},
-\code{Fe2O3}, \code{FeO}, \code{MnO}, \code{MgO}, \code{CaO}, \code{Na2O}, \code{K2O}, \code{P2O5}, \code{Cr2O3},
-\code{SrO}, \code{BaO}, \code{Li2O}, \code{Cs2O}, \code{Rb2O}, \code{V2O5}, \code{NiO}, \code{H2O}, \code{CO2},
-\code{F2}, \code{Cl2}, \code{SO2}, \code{S}.}
+\item{data}{Data frame containing major element oxide columns (wt \%) \strong{or}
+element weight percent columns, or a mix of both. Recognised oxide names
+(case-insensitive): \code{SiO2}, \code{TiO2}, \code{Al2O3}, \code{Fe2O3}, \code{FeO}, \code{MnO},
+\code{MgO}, \code{CaO}, \code{Na2O}, \code{K2O}, \code{P2O5}, \code{Cr2O3}, \code{SrO}, \code{BaO}, \code{Li2O},
+\code{Cs2O}, \code{Rb2O}, \code{V2O5}, \code{NiO}, \code{H2O}, \code{CO2}, \code{F2}, \code{Cl2}, \code{SO2}, \code{S}.
+When an oxide column is absent, the function falls back to the
+corresponding element column if present: \code{Si}, \code{Ti}, \code{Al}, \code{Fe} (treated
+as FeO-equivalent), \code{Mn}, \code{Mg}, \code{Ca}, \code{Na}, \code{K}, \code{P}, \code{Cr}, \code{Sr}, \code{Ba},
+\code{Li}, \code{Cs}, \code{Rb}, \code{V}, \code{Ni} (all case-insensitive). Oxide columns take
+precedence over element columns when both exist.}
 }
 \value{
 A tibble with all non-oxide columns from \code{data} followed by:

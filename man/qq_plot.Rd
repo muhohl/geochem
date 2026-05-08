@@ -2,34 +2,65 @@
 % Please edit documentation in R/qq_plot.R
 \name{qq_plot}
 \alias{qq_plot}
-\title{QQ-Plots}
+\title{QQ plot with optional group colour mapping}
 \usage{
 qq_plot(
   data,
-  elements,
-  group,
+  element,
+  group = NULL,
+  fill = FALSE,
+  qq_line = TRUE,
   linewidth = 1,
   size = 1,
-  color_scale = ggplot2::scale_color_viridis_d(),
-  theme = ggplot2::theme_dark(),
-  print = TRUE
+  color_scale = if (fill) ggplot2::scale_fill_viridis_d() else
+    ggplot2::scale_color_viridis_d()
 )
 }
 \arguments{
-\item{data}{Datatable}
+\item{data}{A data frame.}
 
-\item{elements}{List with the elements that should be plotted.}
+\item{element}{Character scalar; name of the column to plot on the y-axis.}
 
-\item{group}{Name of the group used for coloring the plot.}
+\item{group}{Character scalar; column name used for point colour or fill
+mapping. If \code{NULL} (default) points are drawn without a group aesthetic.}
 
-\item{color_scale}{Specify the colorscale. Virdis is the standard color scale.}
+\item{fill}{Logical; if \code{TRUE} \code{group} is mapped to \code{fill} (requires a
+filled point shape such as \code{shape = 21}). If \code{FALSE} (default) \code{group} is
+mapped to \code{colour}.}
 
-\item{theme}{Specify the theme. ggplot2::theme_dark() is the stadard theme.}
+\item{qq_line}{Logical; if \code{TRUE} (default) the theoretical normal reference
+line is drawn via \code{\link[ggplot2:geom_qq_line]{ggplot2::geom_qq_line()}}. Set to \code{FALSE} to omit it.}
 
-\item{print}{If TRUE qq plots are printed directly if FALSE the qq-plots are
-saved to a list, which is returned.}
+\item{linewidth}{Line width of the QQ reference line (default \code{1}).}
+
+\item{size}{Point size (default \code{1}).}
+
+\item{color_scale}{A ggplot2 colour or fill scale applied when \code{group} is a
+character or factor. Numeric \code{group} columns automatically switch to the
+continuous viridis variant. Defaults to \code{\link[ggplot2:scale_color_viridis_d]{ggplot2::scale_color_viridis_d()}}
+when \code{fill = FALSE} and \code{\link[ggplot2:scale_fill_viridis_d]{ggplot2::scale_fill_viridis_d()}} when
+\code{fill = TRUE}.}
+}
+\value{
+A ggplot object.
 }
 \description{
-Creates qq-plots for all elements specified and colors the plot
-according to group.
+Plots a quantile-quantile (QQ) diagram for a single element, optionally
+colouring points by a grouping variable. Because \code{\link[ggplot2:geom_qq]{ggplot2::geom_qq()}} does
+not support per-point colour mapping, theoretical normal quantiles are
+computed via \code{\link[stats:ppoints]{stats::ppoints()}} (identical to \code{geom_qq}'s internal method),
+the element values are sorted to match, and points are drawn with
+\code{\link[ggplot2:geom_point]{ggplot2::geom_point()}} so that any colour aesthetic works freely.
+}
+\details{
+To produce plots for multiple elements use \code{lapply} or \code{purrr::map}:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{lapply(c("Au_ppm", "Cu_ppm"), \\(el) qq_plot(data, el, group = "Lith"))
+}\if{html}{\out{</div>}}
+}
+\examples{
+\dontrun{
+qq_plot(geochemdata, "Au_ppm", group = "Lithology")
+qq_plot(geochemdata, "Au_ppm")
+}
 }
