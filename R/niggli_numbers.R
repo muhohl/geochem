@@ -15,11 +15,16 @@
 #' gracefully. All other columns (e.g. sample identifiers) are preserved and
 #' prepended to the output.
 #'
-#' @param data Data frame containing major element oxide columns (wt %).
-#'   Accepted oxide names (case-insensitive): `SiO2`, `TiO2`, `Al2O3`,
-#'   `Fe2O3`, `FeO`, `MnO`, `MgO`, `CaO`, `Na2O`, `K2O`, `P2O5`, `Cr2O3`,
-#'   `SrO`, `BaO`, `Li2O`, `Cs2O`, `Rb2O`, `V2O5`, `NiO`, `H2O`, `CO2`,
-#'   `F2`, `Cl2`, `SO2`, `S`.
+#' @param data Data frame containing major element oxide columns (wt %) **or**
+#'   element weight percent columns, or a mix of both. Recognised oxide names
+#'   (case-insensitive): `SiO2`, `TiO2`, `Al2O3`, `Fe2O3`, `FeO`, `MnO`,
+#'   `MgO`, `CaO`, `Na2O`, `K2O`, `P2O5`, `Cr2O3`, `SrO`, `BaO`, `Li2O`,
+#'   `Cs2O`, `Rb2O`, `V2O5`, `NiO`, `H2O`, `CO2`, `F2`, `Cl2`, `SO2`, `S`.
+#'   When an oxide column is absent, the function falls back to the
+#'   corresponding element column if present: `Si`, `Ti`, `Al`, `Fe` (treated
+#'   as FeO-equivalent), `Mn`, `Mg`, `Ca`, `Na`, `K`, `P`, `Cr`, `Sr`, `Ba`,
+#'   `Li`, `Cs`, `Rb`, `V`, `Ni` (all case-insensitive). Oxide columns take
+#'   precedence over element columns when both exist.
 #'
 #' @return A tibble with all non-oxide columns from `data` followed by:
 #'   \describe{
@@ -61,14 +66,43 @@ niggli_numbers <- function(data) {
     so2 = 64.07, s = 32.07
   )
 
+  # Fallback: element wt% → oxide-equivalent moles when the oxide column is
+  # absent. Columns: element name (lowercase), atomic mass, cations per oxide
+  # formula unit. Fe is treated as FeO-equivalent (Fe2+).
+  elem_fallback <- list(
+    sio2  = list(col = "si", am = 28.09, n = 1),
+    tio2  = list(col = "ti", am = 47.87, n = 1),
+    al2o3 = list(col = "al", am = 26.98, n = 2),
+    feo   = list(col = "fe", am = 55.85, n = 1),
+    mno   = list(col = "mn", am = 54.94, n = 1),
+    mgo   = list(col = "mg", am = 24.31, n = 1),
+    cao   = list(col = "ca", am = 40.08, n = 1),
+    na2o  = list(col = "na", am = 22.99, n = 2),
+    k2o   = list(col = "k",  am = 39.10, n = 2),
+    p2o5  = list(col = "p",  am = 30.97, n = 2),
+    cr2o3 = list(col = "cr", am = 52.00, n = 2),
+    sro   = list(col = "sr", am = 87.62, n = 1),
+    bao   = list(col = "ba", am = 137.33, n = 1),
+    li2o  = list(col = "li", am = 6.94,  n = 2),
+    cs2o  = list(col = "cs", am = 132.91, n = 2),
+    rb2o  = list(col = "rb", am = 85.47, n = 2),
+    v2o5  = list(col = "v",  am = 50.94, n = 2),
+    nio   = list(col = "ni", am = 58.69, n = 1)
+  )
+
   data_lc <- dplyr::rename_with(data, tolower)
 
-  # Compute molar values by name, not position; missing oxides → 0
+  # Compute molar values by name; missing oxides fall back to element columns,
+  # then to 0 if neither is present.
   mol <- tibble::as_tibble(
     setNames(
       lapply(names(mol_wts), function(ox) {
         if (ox %in% names(data_lc)) {
           dplyr::coalesce(data_lc[[ox]] / mol_wts[[ox]], 0)
+        } else if (!is.null(elem_fallback[[ox]]) &&
+                   elem_fallback[[ox]]$col %in% names(data_lc)) {
+          fb <- elem_fallback[[ox]]
+          dplyr::coalesce(data_lc[[fb$col]] / fb$am / fb$n, 0)
         } else {
           rep(0, nrow(data_lc))
         }
@@ -108,8 +142,9 @@ niggli_numbers <- function(data) {
     n_s             = mol$s   / total * 100
   )
 
-  # Carry forward all non-oxide columns (e.g. sample IDs, hole IDs)
-  id_cols <- setdiff(names(data_lc), names(mol_wts))
+  # Carry forward all non-oxide, non-element columns (e.g. sample IDs)
+  elem_col_names <- vapply(elem_fallback, `[[`, character(1), "col")
+  id_cols <- setdiff(names(data_lc), union(names(mol_wts), elem_col_names))
   if (length(id_cols) > 0) {
     dplyr::bind_cols(data_lc[, id_cols, drop = FALSE], niggli)
   } else {
