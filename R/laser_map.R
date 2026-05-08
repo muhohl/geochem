@@ -345,7 +345,7 @@ laser_map <- function(
                 expl_var_all <- pca_rec %>%
                     recipes::tidy(id = "pca", type = "variance") %>%
                     dplyr::filter(terms == "percent variance") %>%
-                    pull(value)
+                    dplyr::pull(value)
                 # extract the number of the PC with str_extract and use it as sel_pc.
                 # I don't even need the sel_pc argument if I use the tidymodels approach.
                 sel_pc_new <- stringr::str_extract(element, "\\d\\d|\\d")
