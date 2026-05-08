@@ -2,74 +2,40 @@
 % Please edit documentation in R/drillhole_section.R
 \name{drillhole_section}
 \alias{drillhole_section}
-\title{Drillhole cross-section plot}
+\title{Drillhole cross-section projection}
 \usage{
-drillhole_section(
-  data,
-  x = "x",
-  y = "y",
-  z = "z",
-  hole_id,
-  view_angle = 0,
-  colour = NULL,
-  pointsize = 1,
-  linewidth = 0.4,
-  reverse_z = TRUE,
-  ...
-)
+drillhole_section(data, x = "x", y = "y", view_angle = 0)
 }
 \arguments{
-\item{data}{Data frame containing coordinate and optional element columns.}
+\item{data}{Data frame containing drillhole coordinate and assay columns.}
 
 \item{x}{Name of the easting column (default \code{"x"}).}
 
 \item{y}{Name of the northing column (default \code{"y"}).}
 
-\item{z}{Name of the depth/elevation column (default \code{"z"}). Plotted on the
-y-axis.}
-
-\item{hole_id}{Name of the drillhole identifier column. Points belonging to
-the same hole are connected into a trace with \code{\link[ggplot2:geom_path]{ggplot2::geom_path()}}.}
-
-\item{view_angle}{Viewing azimuth in degrees (default \code{0}). Controls which
-horizontal projection is used for the section plane (see Details).}
-
-\item{colour}{Name of a column to map to colour. If \code{NULL} (default),
-traces are coloured by \code{hole_id}.}
-
-\item{pointsize}{Size of the drillhole trace points (default \code{1}).}
-
-\item{linewidth}{Width of the drillhole trace lines shown in grey (default \code{0.4}).}
-
-\item{reverse_z}{If \code{TRUE} (default), the y-axis is reversed so depth
-increases downward. Set to \code{FALSE} when \code{z} is an elevation (RL).}
-
-\item{...}{Additional arguments passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
+\item{view_angle}{Viewing azimuth in degrees (default \code{0}).}
 }
 \value{
-A ggplot object.
+A tibble identical to \code{data} with one additional column \code{proj_x}.
 }
 \description{
-Projects drillhole traces onto a vertical section plane defined by a viewing
-angle and plots them with depth on the y-axis (surface at top).
+Projects drillhole x/y coordinates onto a vertical section plane defined by
+a viewing angle and returns a tibble with a \code{proj_x} column appended. The
+result can be passed directly to \code{\link[=raster_section]{raster_section()}} or plotted manually with
+ggplot2.
 }
 \details{
-The horizontal axis is the coordinate projected onto the section plane:
+The projection follows:
 \deqn{x_{\text{proj}} = x \cos(\theta) - y \sin(\theta)}
-where \eqn{\theta} is \code{view_angle} converted to radians. This gives the
-following cardinal views:\tabular{ll}{
-   \code{view_angle} \tab Horizontal axis \cr
+where \eqn{\theta} is \code{view_angle} in degrees. Cardinal views:\tabular{ll}{
+   \code{view_angle} \tab \code{proj_x} \cr
    0 / 360 \tab x (easting) \cr
    90 \tab −y (−northing) \cr
    180 \tab −x \cr
    270 \tab y (northing) \cr
 }
-
-
-Intermediate angles project both coordinates proportionally.
 }
 \examples{
-# build a minimal drillhole dataset
 dh <- data.frame(
   hole_id = rep(c("DH-01", "DH-02"), each = 10),
   x       = rep(c(100, 200), each = 10),
@@ -78,5 +44,5 @@ dh <- data.frame(
   Au_ppm  = runif(20)
 )
 
-drillhole_section(dh, hole_id = "hole_id", view_angle = 0, colour = "Au_ppm")
+drillhole_section(dh, view_angle = 45)
 }

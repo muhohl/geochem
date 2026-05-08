@@ -1,44 +1,36 @@
-#' Drillhole cross-section plot
+#' Drillhole cross-section projection
 #'
-#' Projects drillhole traces onto a vertical section plane defined by a viewing
-#' angle and plots them with depth on the y-axis (surface at top).
+#' Projects drillhole x/y coordinates onto a vertical section plane defined by
+#' a viewing angle and returns a tibble with a `proj_x` column appended. The
+#' result can be passed directly to [raster_section()] or plotted manually with
+#' ggplot2.
 #'
-#' The horizontal axis is the coordinate projected onto the section plane:
-#' \deqn{x_{\text{proj}} = x \cos(\theta) - y \sin(\theta)}
-#' where \eqn{\theta} is `view_angle` converted to radians. This gives the
-#' following cardinal views:
+#' @section Projection:
+#' For angles in the easting-dominant range (≤ 45° or ≥ 315°, and 135°–225°)
+#' the full rotation formula is used:
+#' \deqn{proj\_x = x \cos(\theta) - y \sin(\theta)}
+#' For angles in the northing-dominant range (45°–135° and 225°–315°) the
+#' formula is rotated 90° so that northing (`y`) is the primary axis:
+#' \deqn{proj\_x = x \cos(\theta) + y \sin(\theta)}
+#' This gives pure `y` at θ = 90° and pure `−y` at θ = 270°. A message is
+#' emitted whenever this branch is used.
 #'
-#' | `view_angle` | Horizontal axis |
+#' | `view_angle` | `proj_x` |
 #' |---|---|
-#' | 0 / 360 | x (easting) |
-#' | 90 | −y (−northing) |
-#' | 180 | −x |
-#' | 270 | y (northing) |
+#' | 0 / 360 | `x·cos θ − y·sin θ` → x |
+#' | 90 | `x·cos θ + y·sin θ` → y (with message) |
+#' | 180 | `x·cos θ − y·sin θ` → −x |
+#' | 270 | `x·cos θ + y·sin θ` → −y (with message) |
 #'
-#' Intermediate angles project both coordinates proportionally.
-#'
-#' @param data Data frame containing coordinate and optional element columns.
+#' @param data Data frame containing drillhole coordinate and assay columns.
 #' @param x Name of the easting column (default `"x"`).
 #' @param y Name of the northing column (default `"y"`).
-#' @param z Name of the depth/elevation column (default `"z"`). Plotted on the
-#'   y-axis.
-#' @param hole_id Name of the drillhole identifier column. Points belonging to
-#'   the same hole are connected into a trace with [ggplot2::geom_path()].
-#' @param view_angle Viewing azimuth in degrees (default `0`). Controls which
-#'   horizontal projection is used for the section plane (see Details).
-#' @param colour Name of a column to map to colour. If `NULL` (default),
-#'   traces are coloured by `hole_id`.
-#' @param pointsize Size of the drillhole trace points (default `1`).
-#' @param linewidth Width of the drillhole trace lines shown in grey (default `0.4`).
-#' @param reverse_z If `TRUE` (default), the y-axis is reversed so depth
-#'   increases downward. Set to `FALSE` when `z` is an elevation (RL).
-#' @param ... Additional arguments passed to [ggplot2::theme()].
+#' @param view_angle Viewing azimuth in degrees (default `0`).
 #'
-#' @return A ggplot object.
+#' @return A tibble identical to `data` with one additional column `proj_x`.
 #' @export
 #'
 #' @examples
-#' # build a minimal drillhole dataset
 #' dh <- data.frame(
 #'   hole_id = rep(c("DH-01", "DH-02"), each = 10),
 #'   x       = rep(c(100, 200), each = 10),
@@ -47,52 +39,39 @@
 #'   Au_ppm  = runif(20)
 #' )
 #'
-#' drillhole_section(dh, hole_id = "hole_id", view_angle = 0, colour = "Au_ppm")
+#' drillhole_section(dh, view_angle = 45)
+#' drillhole_section(dh, view_angle = 90)   # switches to y projection
 drillhole_section <- function(
     data,
     x = "mid_x",
     y = "mid_y",
     z = "mid_z",
-    hole_id,
-    view_angle = 0,
-    colour = NULL,
-    pointsize = 1,
-    linewidth = 0.4,
-    reverse_z = TRUE,
-    ...
+    view_angle = 0
 ) {
-    angle_rad <- (view_angle %% 360) * pi / 180
-    data[[".__proj_x__"]] <- data[[x]] *
-        cos(angle_rad) -
-        data[[y]] * sin(angle_rad)
+    angle <- view_angle %% 360
+    use_y <- (angle > 45 & angle < 135) | (angle > 225 & angle < 315)
 
-    colour_col <- if (is.null(colour)) hole_id else colour
-    quo_colour <- ggplot2::sym(colour_col)
-    quo_hole <- ggplot2::sym(hole_id)
-    quo_z <- ggplot2::sym(z)
+    angle_rad <- angle * pi / 180
 
-    p <- ggplot2::ggplot(
-        data = data,
-        ggplot2::aes(
-            x = .__proj_x__,
-            y = !!quo_z,
-            group = !!quo_hole,
-            colour = !!quo_colour
-        )
-    ) +
-        ggplot2::geom_line(linewidth = linewidth, color = "grey70") +
-        ggplot2::geom_point(size = pointsize) +
-        ggplot2::labs(
-            x = sprintf("Projected distance  [view angle = %g°]", view_angle),
-            y = z,
-            colour = colour_col
-        ) +
-        ggplot2::theme_classic() +
-        ggplot2::theme(...)
-
-    if (reverse_z) {
-        p <- p + ggplot2::scale_y_reverse()
+    if (use_y) {
+        message(sprintf(
+            "drillhole_section: view_angle = %g° is in the northing-dominant range — using y-primary projection (x·cosθ + y·sinθ) with column \"%s\".",
+            view_angle,
+            y
+        ))
+        angle_rad <- (angle + 90) * pi / 180
+        tibble::as_tibble(data) |>
+            dplyr::mutate(
+                proj_x = .data[[y]] *
+                    cos(angle_rad) +
+                    .data[[x]] * sin(angle_rad)
+            )
+    } else {
+        tibble::as_tibble(data) |>
+            dplyr::mutate(
+                proj_x = .data[[x]] *
+                    cos(angle_rad) -
+                    .data[[y]] * sin(angle_rad)
+            )
     }
-
-    p
 }
