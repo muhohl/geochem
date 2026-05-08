@@ -1,3 +1,69 @@
+round_up <- function(x, nice = c(seq(1, 10, 0.1))) {
+    if (length(x) != 1) stop("'x' must be of length 1")
+    10^floor(log10(x)) * nice[[which(x <= 10^floor(log10(x)) * nice)[[1]]]]
+}
+
+double_values_checker <- function(breaks_fun, small_scale) {
+    if (length(unique(breaks_fun)) != length(breaks_fun)) small_scale <- TRUE
+    if (!small_scale) {
+        for (j in 2:length(breaks_fun)) {
+            if (breaks_fun[j] <= breaks_fun[j - 1]) small_scale <- TRUE
+        }
+    }
+    return(small_scale)
+}
+
+small_breaks_definer <- function(min_scale, mid_scale, max_scale, small_scale,
+                                 min_ppm, max_ppm,
+                                 smallest_scale_I, smallest_scale_II, smallest_scale_III) {
+    breaks <- c(
+        round_up(min_scale * max_ppm),
+        round_up(mid_scale * max_ppm),
+        round_up(max_scale * max_ppm),
+        max_ppm
+    )
+
+    if (min_ppm > min_scale * max_ppm) {
+        breaks <- c(
+            round_up(min_scale * max_ppm + min_ppm),
+            round_up(mid_scale * max_ppm + min_ppm),
+            round_up(max_scale * max_ppm + min_ppm),
+            max_ppm
+        )
+    }
+
+    small_scale <- double_values_checker(breaks_fun = breaks, small_scale = FALSE)
+
+    if (small_scale) {
+        if (min_ppm > pretty(min_scale * max_ppm)[2] &&
+            min_ppm < pretty(mid_scale * max_ppm)[2]) {
+            breaks <- c(pretty(mid_scale * max_ppm)[2], max_ppm)
+            small_scale <- FALSE
+            smallest_scale_I <- TRUE
+        }
+        if (min_ppm > pretty(max_scale * max_ppm)[2]) {
+            breaks <- c(min_ppm, max_ppm)
+            smallest_scale_II <- TRUE
+            small_scale <- FALSE
+        }
+        if (min_ppm < pretty(max_scale * max_ppm)[2] && !smallest_scale_I) {
+            breaks <- c(max_scale * max_ppm, max_ppm)
+            smallest_scale_III <- TRUE
+            small_scale <- FALSE
+        }
+    } else {
+        small_scale <- TRUE
+    }
+
+    return(list(
+        'breaks'           = breaks,
+        'small_scale'      = small_scale,
+        'smallest_scale_I' = smallest_scale_I,
+        'smallest_scale_II' = smallest_scale_II,
+        'smallest_scale_III' = smallest_scale_III
+    ))
+}
+
 #' Laser Maps Plot
 #'
 #' @description
@@ -43,20 +109,25 @@
 #' # laser_map2(laser_map_data, columns = c(3, 4))
 #'
 #' @import magrittr
-laser_map <- function(data,
-                     selected_elements,
-                     Log_Trans = FALSE,
-                     pca_rec = NA,
-                     sel_pc = NA,
-                     unit_title = "(ppm)",
-                     fontsize = 14,
-                     font = "serif",
-                     labels = scales::label_scientific(),
-                     ...) {
-
-    .Deprecated("laser_map2",
-                msg = paste0("laser_map() is deprecated. ",
-                             "Please use laser_map2() instead."))
+laser_map <- function(
+    data,
+    selected_elements,
+    Log_Trans = FALSE,
+    pca_rec = NA,
+    sel_pc = NA,
+    unit_title = "(ppm)",
+    fontsize = 14,
+    font = "serif",
+    labels = scales::label_scientific(),
+    ...
+) {
+    .Deprecated(
+        "laser_map2",
+        msg = paste0(
+            "laser_map() is deprecated. ",
+            "Please use laser_map2() instead."
+        )
+    )
 
     # Create empty vectors for the following for loop
     plot_list <- list()
@@ -67,9 +138,10 @@ laser_map <- function(data,
     kNN_Colors <- ggsci::pal_aaas()(9)
     kNN_n <- c("1", "2", "3", "4", "5", "6", "7", "8", "9")
     names(kNN_Colors) <- factor(kNN_n)
-    fill_scale_knn <- ggplot2::scale_fill_manual(name = "Cluster",
-                                                 values = kNN_Colors)
-
+    fill_scale_knn <- ggplot2::scale_fill_manual(
+        name = "Cluster",
+        values = kNN_Colors
+    )
 
     # Check for X,Y coordinates name and change them to lower case
     for (i in names(data)) {
@@ -81,10 +153,8 @@ laser_map <- function(data,
         }
     }
 
-
     # The plotting for loop!
     for (i in 1:length(selected_elements)) {
-
         # define variable at the beginning of each iteration
         element <- colnames(data[selected_elements[i]])
 
@@ -103,49 +173,53 @@ laser_map <- function(data,
             }
         } else {
             trans_arg <- Log_Trans %>%
-                dplyr::filter(!! dplyr::sym(names(Log_Trans[1])) == element) %>%
+                dplyr::filter(!!dplyr::sym(names(Log_Trans[1])) == element) %>%
                 dplyr::pull(2)
         }
 
         small_scale <- FALSE
         smallest_scale <- FALSE
 
-        small_breaks_list <- list('breaks' = NA,
-                                  'small_scale' = small_scale,
-                                  'smallest_scale_I' = FALSE,
-                                  'smallest_scale_II' = FALSE,
-                                  'smallest_scale_III' = FALSE)
+        small_breaks_list <- list(
+            'breaks' = NA,
+            'small_scale' = small_scale,
+            'smallest_scale_I' = FALSE,
+            'smallest_scale_II' = FALSE,
+            'smallest_scale_III' = FALSE
+        )
 
         # Create the base plot
         p1 <- data %>%
-            ggplot2::ggplot(ggplot2::aes(x, y,
-                       fill = !! ggplot2::sym(element))) +
+            ggplot2::ggplot(ggplot2::aes(
+                x,
+                y,
+                fill = !!ggplot2::sym(element)
+            )) +
             ggplot2::geom_raster(interpolate = TRUE) +
             ggplot2::theme_bw() +
-            ggplot2::theme(panel.border = ggplot2::element_blank(),
-                           text = ggplot2::element_text(family = font,
-                                                        size = fontsize)) +
+            ggplot2::theme(
+                panel.border = ggplot2::element_blank(),
+                text = ggplot2::element_text(family = font, size = fontsize)
+            ) +
             ggplot2::coord_fixed(ratio = 1) +
-                  #aspect.ratio = 1) +
-            ggplot2::scale_y_discrete(expand = c(0,0)) +
-            ggplot2::scale_x_discrete(expand = c(0,0)) +
-            ggplot2::labs(fill = "",
-                 y = "",
-                 x = "") +
+            #aspect.ratio = 1) +
+            ggplot2::scale_y_discrete(expand = c(0, 0)) +
+            ggplot2::scale_x_discrete(expand = c(0, 0)) +
+            ggplot2::labs(fill = "", y = "", x = "") +
             ggplot2::ggtitle(paste(element, unit_title))
 
         # From here onwards is mostly scale handling
         if (!stringr::str_detect(element, 'PC|kNN')) {
-
             # If statements that decide if log transformed or not
             if (trans_arg == 'identity') {
-
                 breaks_one <- FALSE
                 # define breaks for the scale
-                small_breaks_list[[1]] <- c(pretty(min_ppm)[2], # offer if statement for
-                                            pretty(0.25*max_ppm)[2], # pretty numbers
-                                            pretty(0.5*max_ppm)[2],
-                                            pretty(0.75*max_ppm)[2])
+                small_breaks_list[[1]] <- c(
+                    pretty(min_ppm)[2], # offer if statement for
+                    pretty(0.25 * max_ppm)[2], # pretty numbers
+                    pretty(0.5 * max_ppm)[2],
+                    pretty(0.75 * max_ppm)[2]
+                )
 
                 if (small_breaks_list[[1]][4] > max_ppm) {
                     small_breaks_list[[2]] <- TRUE
@@ -153,40 +227,45 @@ laser_map <- function(data,
 
                 # check for duplicate or larger values in the scale, if so reduce the number of
                 # breaks to three
-                small_breaks_list[[2]] <- geochem::double_values_checker(breaks_fun = small_breaks_list[[1]],
-                                                                         small_scale = small_breaks_list[[2]])
+                small_breaks_list[[2]] <- double_values_checker(
+                    breaks_fun = small_breaks_list[[1]],
+                    small_scale = small_breaks_list[[2]]
+                )
 
                 if (small_breaks_list[[2]]) {
-                    small_breaks_list <- geochem::small_breaks_definer(min_scale = 0.25,
-                                                                       mid_scale = 0.5,
-                                                                       max_scale = 0.75,
-                                                                       small_scale = small_breaks_list[[2]],
-                                                                       min_ppm = min(data[selected_elements[i]]),
-                                                                       max_ppm = max(data[selected_elements[i]]),
-                                                                       smallest_scale_I = FALSE,
-                                                                       smallest_scale_II = FALSE,
-                                                                       smallest_scale_III = FALSE)
+                    small_breaks_list <- small_breaks_definer(
+                        min_scale = 0.25,
+                        mid_scale = 0.5,
+                        max_scale = 0.75,
+                        small_scale = small_breaks_list[[2]],
+                        min_ppm = min(data[selected_elements[i]]),
+                        max_ppm = max(data[selected_elements[i]]),
+                        smallest_scale_I = FALSE,
+                        smallest_scale_II = FALSE,
+                        smallest_scale_III = FALSE
+                    )
                 }
 
                 # Add the color scale and title according to log transformation or not
 
                 p1 <- p1 +
-                    ggplot2::scale_fill_viridis_c(option = ...,
-                                         trans = trans_arg,
-                                         limits = c(min_ppm, max_ppm),
-                                         breaks = small_breaks_list[[1]],
-                                         expand = c(0,0),
-                                         labels = labels) +
+                    ggplot2::scale_fill_viridis_c(
+                        option = ...,
+                        trans = trans_arg,
+                        limits = c(min_ppm, max_ppm),
+                        breaks = small_breaks_list[[1]],
+                        expand = c(0, 0),
+                        labels = labels
+                    ) +
                     ggplot2::ggtitle(paste(element, unit_title))
 
                 min_log <- min_ppm
                 max_log <- max_ppm
-                range_log <- max_log-min_log
+                range_log <- max_log - min_log
                 breaks_in_element <- small_breaks_list[[1]]
             }
 
             if (trans_arg == 'log') {
-
                 breaks_one <- FALSE
                 breaks_in_element <- c()
 
@@ -197,39 +276,50 @@ laser_map <- function(data,
                 }
 
                 if (length(breaks_in_element) == 1) {
-                    breaks_in_element <- append(breaks_in_element, min_ppm, after = 0)
+                    breaks_in_element <- append(
+                        breaks_in_element,
+                        min_ppm,
+                        after = 0
+                    )
                     breaks_one <- TRUE
                 }
                 if (length(breaks_in_element) == 0) {
-                    breaks_in_element <- append(breaks_in_element, ((min_ppm+max_ppm)/2), after = 0)
+                    breaks_in_element <- append(
+                        breaks_in_element,
+                        ((min_ppm + max_ppm) / 2),
+                        after = 0
+                    )
                     #breaks_one <- TRUE
                 }
 
                 if (stringr::str_detect(element, "/")) {
                     # Ratio Plot
                     p1 <- p1 +
-                        ggplot2::scale_fill_gradient2(trans = "log",
-                                                      low = "#001096",
-                                                      high = "#E60000",
-                                                      mid = "grey80",
-                                                      limits = c(min_ppm, max_ppm),
-                                                      breaks = breaks_in_element,
-                                                      expand = c(0,0),
-                                                      labels = scales::label_number(accuracy = 0.01))
-
+                        ggplot2::scale_fill_gradient2(
+                            trans = "log",
+                            low = "#001096",
+                            high = "#E60000",
+                            mid = "grey80",
+                            limits = c(min_ppm, max_ppm),
+                            breaks = breaks_in_element,
+                            expand = c(0, 0),
+                            labels = scales::label_number(accuracy = 0.01)
+                        )
                 } else {
                     # Log scale plot
                     p1 <- p1 +
-                        ggplot2::scale_fill_viridis_c(option = ...,
-                                             trans = trans_arg,
-                                             limits = c(min_ppm, max_ppm),
-                                             breaks = breaks_in_element,
-                                             expand = c(0,0),
-                                             labels = labels) +
+                        ggplot2::scale_fill_viridis_c(
+                            option = ...,
+                            trans = trans_arg,
+                            limits = c(min_ppm, max_ppm),
+                            breaks = breaks_in_element,
+                            expand = c(0, 0),
+                            labels = labels
+                        ) +
                         ggplot2::ggtitle(paste(element, unit_title)) #+
-                        #theme(text = element_text(family = 'serif')) # make it into if statement
-                        # if true than lapply to the complete list at the end of the program, like
-                        # the margin is applied
+                    #theme(text = element_text(family = 'serif')) # make it into if statement
+                    # if true than lapply to the complete list at the end of the program, like
+                    # the margin is applied
                 }
                 if (breaks_one) {
                     breaks_in_element <- breaks_in_element[2]
@@ -241,10 +331,14 @@ laser_map <- function(data,
         # But the legend is divergent and the center value (0) is not the
         # center of the legend.
         if (stringr::str_detect(element, 'PC')) {
-
             # get the explained variance for the selected principal components
             if (class(pca_rec) == "prcomp") {
-                expl_var <- (100 * pca_rec$sdev[sel_pc]^2/sum(pca_rec$sdev^2))[as.numeric(stringr::str_extract(element, '\\d\\d|\\d'))]
+                expl_var <- (100 *
+                    pca_rec$sdev[sel_pc]^2 /
+                    sum(pca_rec$sdev^2))[as.numeric(stringr::str_extract(
+                    element,
+                    '\\d\\d|\\d'
+                ))]
             }
 
             if (class(pca_rec) == "recipe") {
@@ -258,21 +352,27 @@ laser_map <- function(data,
                 expl_var <- round(expl_var_all[as.numeric(sel_pc_new)], 2)
             }
 
-
-            small_breaks_list[[1]] <- c(min_ppm,
-                                        min_ppm/2,
-                                        0,
-                                        max_ppm/2,
-                                        max_ppm)
+            small_breaks_list[[1]] <- c(
+                min_ppm,
+                min_ppm / 2,
+                0,
+                max_ppm / 2,
+                max_ppm
+            )
 
             p1 <- p1 +
-                ggplot2::scale_fill_gradient2(breaks = small_breaks_list[[1]],
-                                     expand = c(0,0),
-                                     high = 'red',
-                                     low = 'cyan',
-                                     mid = 'grey35',
-                                     labels = scales::label_number()) +
-                ggplot2::ggtitle(paste(element, sprintf('- %0.1f%% expl. var.', expl_var)))
+                ggplot2::scale_fill_gradient2(
+                    breaks = small_breaks_list[[1]],
+                    expand = c(0, 0),
+                    high = 'red',
+                    low = 'cyan',
+                    mid = 'grey35',
+                    labels = scales::label_number()
+                ) +
+                ggplot2::ggtitle(paste(
+                    element,
+                    sprintf('- %0.1f%% expl. var.', expl_var)
+                ))
         }
 
         if (stringr::str_detect(element, 'kNN')) {
@@ -285,7 +385,6 @@ laser_map <- function(data,
                 fill_scale_knn +
                 ggplot2::ggtitle(paste(element))
         }
-
 
         # Resize the legend, so that it is the same size as the plot
         # Code from github: https://stackoverflow.com/questions/19214914/how-can-i-make-the-legend-in-ggplot2-the-same-height-as-my-plot
@@ -311,12 +410,18 @@ laser_map <- function(data,
 
         if (length(breaks_in_element) >= 1) {
             # Positions for labels and tick marks - five breaks, therefore, five positions
-            pos <- grid::unit.c(grid::unit((breaks_in_element[1]-min_log)/range_log, "npc"))
+            pos <- grid::unit.c(grid::unit(
+                (breaks_in_element[1] - min_log) / range_log,
+                "npc"
+            ))
         }
 
-        for (l in 2:length(breaks_in_element)){
+        for (l in 2:length(breaks_in_element)) {
             if (length(breaks_in_element) >= l) {
-                pos[l] <- grid::unit((breaks_in_element[l]-min_log)/range_log, "npc")
+                pos[l] <- grid::unit(
+                    (breaks_in_element[l] - min_log) / range_log,
+                    "npc"
+                )
             }
         }
 
@@ -325,13 +430,21 @@ laser_map <- function(data,
             pos[1] <- grid::unit(0.01, "npc")
         }
 
-
         # Define the position for the PCA legend, as percentages to their negative and positive extremes
         if (stringr::str_detect(element, 'PC')) {
-            pos <- grid::unit.c(grid::unit(0.01,"npc"),
-                                grid::unit(abs(min_ppm)/(abs(min_ppm-max_ppm))/2, "npc"),
-                                grid::unit(abs(min_ppm)/(abs(min_ppm - max_ppm)), "npc"),
-                                grid::unit(abs(max_ppm)/(abs(min_ppm-max_ppm))/2+(abs(min_ppm)/(abs(min_ppm - max_ppm))), "npc"), grid::unit(.99, "npc"))
+            pos <- grid::unit.c(
+                grid::unit(0.01, "npc"),
+                grid::unit(abs(min_ppm) / (abs(min_ppm - max_ppm)) / 2, "npc"),
+                grid::unit(abs(min_ppm) / (abs(min_ppm - max_ppm)), "npc"),
+                grid::unit(
+                    abs(max_ppm) /
+                        (abs(min_ppm - max_ppm)) /
+                        2 +
+                        (abs(min_ppm) / (abs(min_ppm - max_ppm))),
+                    "npc"
+                ),
+                grid::unit(.99, "npc")
+            )
         }
 
         # Positions the labels
@@ -342,13 +455,17 @@ laser_map <- function(data,
         leg[[1]][[1]][[1]][[1]][[1]][[5]]$y1 <- pos
 
         # Legend key height ?
-        leg[[1]][[1]][[1]][[1]]$heights <- grid::unit.c(rep(grid::unit(0, "mm"), 3),
-                                                        grid::unit(1, "npc"),
-                                                        grid::unit(0, "mm"))
+        leg[[1]][[1]][[1]][[1]]$heights <- grid::unit.c(
+            rep(grid::unit(0, "mm"), 3),
+            grid::unit(1, "npc"),
+            grid::unit(0, "mm")
+        )
         # Legend height
-        leg[[1]][[1]]$heights[[3]] <- sum(rep(grid::unit(0, "mm"), 3),
-                                          grid::unit(1, "npc"),
-                                          grid::unit(0, "mm"))
+        leg[[1]][[1]]$heights[[3]] <- sum(
+            rep(grid::unit(0, "mm"), 3),
+            grid::unit(1, "npc"),
+            grid::unit(0, "mm")
+        )
 
         # grid.draw(leg)  # Check on heights and y values
 
