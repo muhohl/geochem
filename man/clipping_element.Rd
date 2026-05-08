@@ -2,17 +2,30 @@
 % Please edit documentation in R/clipping_element.R
 \name{clipping_element}
 \alias{clipping_element}
-\title{Plotly Laser Map for selected element}
+\title{Plotly laser map for selecting a clipping threshold}
 \usage{
 clipping_element(elmnt, data)
 }
 \arguments{
-\item{elmnt}{The element that will be clipped.}
+\item{elmnt}{Character scalar; name of the element column to display.}
 
-\item{data}{The laser map data set.}
+\item{data}{Data frame containing \code{x}/\code{y} coordinate columns and at least
+the element column named by \code{elmnt}.}
+}
+\value{
+A \code{plotly} htmlwidget.
 }
 \description{
-Shows a plotly map of the selected element to determine the cut off value
-for that paritcular element. The function doesn;t do the actual clipping.
-The Clipping has to be done manually with filter().
+Renders an interactive plotly raster map of one element from a laser
+ablation dataset. Use the map to visually determine a cut-off value;
+the function doesn't do the actual clipping — apply \code{\link[dplyr:filter]{dplyr::filter()}}
+afterwards.
+}
+\details{
+Column names \code{X} and \code{Y} are normalised to lowercase automatically.
+}
+\examples{
+\dontrun{
+clipping_element("Au_ppm", laser_data)
+}
 }

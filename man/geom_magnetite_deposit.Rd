@@ -10,7 +10,7 @@ geom_magnetite_deposit(
   color_fill = TRUE,
   color = "black",
   textsize = 3,
-  scales = TRUE
+  axis_labels = TRUE
 )
 }
 \arguments{
@@ -26,8 +26,7 @@ translucent colours.}
 
 \item{textsize}{Font size for the field name annotations (default \code{3}).}
 
-\item{scales}{Logical; if \code{TRUE} (default) log~10~ axis scales and axis
-labels are added. Set to \code{FALSE} when layering multiple diagram calls to
+\item{axis_labels}{Logical; if \code{TRUE} (default) axis labels are added. Set to \code{FALSE} when layering multiple diagram calls to
 avoid duplicate-scale warnings.}
 }
 \value{
