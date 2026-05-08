@@ -1,14 +1,37 @@
-#' Oxides to Elements
+#' Convert oxide wt% columns to element wt%
 #'
-#' Convert oxides found in the whole rock geochemical data sets to elements.
+#' Detects major-element oxide columns in `data`, applies the stoichiometric
+#' element-to-oxide mass ratio, and returns a tibble of element weight percent
+#' values. Column name matching is case-insensitive and tolerates common
+#' alternative spellings (e.g. `mg_o`, `si_o2`, `ti_o2`, `mn_o`).
 #'
-#' @param data
-#' Dataframe as tibble
+#' Recognised oxides and their output column names:
+#' \describe{
+#'   \item{`Na2O`}{→ `na_pct`}
+#'   \item{`MgO`}{→ `mg_pct`}
+#'   \item{`Al2O3`}{→ `al_pct`}
+#'   \item{`SiO2`}{→ `si_pct`}
+#'   \item{`P2O5`}{→ `p_pct`}
+#'   \item{`K2O`}{→ `k_pct`}
+#'   \item{`TiO2`}{→ `ti_pct`}
+#'   \item{`Cr2O3`}{→ `cr_pct`}
+#'   \item{`MnO`}{→ `mn_pct`}
+#'   \item{`Fe2O3`}{→ `fe_pct` (all iron treated as Fe³⁺)}
+#' }
 #'
-#' @return A tibble containing the elements.
+#' All other columns are dropped. If multiple source columns resolve to the
+#' same element (e.g. duplicate oxide columns), their values are summed
+#' row-wise.
+#'
+#' @param data A data frame containing major element oxide columns (wt %).
+#'
+#' @return A tibble with one column per recognised element, named with the
+#'   `_pct` suffix (e.g. `na_pct`, `fe_pct`). Non-oxide columns are not
+#'   carried forward; use [dplyr::bind_cols()] to reattach identifiers.
 #' @export
 #'
 #' @examples
+#' oxides_to_elements(data.frame(SiO2 = 45.0, Al2O3 = 15.0, Fe2O3 = 10.0))
 #'
 #' @import magrittr
 

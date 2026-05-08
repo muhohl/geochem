@@ -45,7 +45,7 @@
 #'
 #' Forty synthetic PGE / noble-metal assay results. A fraction of values fall
 #' below the instrument detection limit and are stored as strings such as
-#' `"<0.05"`. Use with [Random_Number_Imputer()] to replace them with
+#' `"<0.05"`. Use with [random_number_imputer()] to replace them with
 #' uniformly distributed random values below the detection threshold.
 #'
 #' @format A data frame with 40 rows and 5 variables:

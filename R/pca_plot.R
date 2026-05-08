@@ -23,7 +23,7 @@ pca_plot <- function(pca_rec,
         recipes::tidy(id = "pca",
                       type = "variance") %>%
         dplyr::filter(terms == "percent variance") %>%
-        pull(value)
+        dplyr::pull(value)
 
        if (is.na(data[[1]])) {
            df_pca <- recipes::bake(pca_rec, new_data = NULL)
@@ -36,7 +36,7 @@ pca_plot <- function(pca_rec,
                                      !!sym(glue::glue("PC{pc_y}")))) +
         ggplot2::labs(x = glue::glue("PC {pc_x} [{round(pca_all_var[pc_x], 1)}%]"),
                       y = glue::glue("PC {pc_y} [{round(pca_all_var[pc_y], 1)}%]"),
-                      caption = glue::glue("*n =* {pull(count(recipes::bake(pca_rec, new_data = NULL)))}"),
+                      caption = glue::glue("*n =* {dplyr::pull(count(recipes::bake(pca_rec, new_data = NULL)))}"),
                       ...) +
         ggplot2::theme(axis.title.x = ggtext::element_markdown(),
                        axis.title.y = ggtext::element_markdown(),

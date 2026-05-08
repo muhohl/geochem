@@ -142,11 +142,13 @@ niggli_numbers <- function(data) {
     n_s             = mol$s   / total * 100
   )
 
-  # Carry forward all non-oxide, non-element columns (e.g. sample IDs)
-  elem_col_names <- vapply(elem_fallback, `[[`, character(1), "col")
-  id_cols <- setdiff(names(data_lc), union(names(mol_wts), elem_col_names))
-  if (length(id_cols) > 0) {
-    dplyr::bind_cols(data_lc[, id_cols, drop = FALSE], niggli)
+  # Carry forward all non-oxide, non-element columns (e.g. sample IDs),
+  # using original column names from data to preserve case.
+  elem_col_names  <- vapply(elem_fallback, `[[`, character(1), "col")
+  id_cols_lc      <- setdiff(names(data_lc), union(names(mol_wts), elem_col_names))
+  id_cols_orig    <- names(data)[names(data_lc) %in% id_cols_lc]
+  if (length(id_cols_orig) > 0) {
+    dplyr::bind_cols(data[, id_cols_orig, drop = FALSE], niggli)
   } else {
     niggli
   }

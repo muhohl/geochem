@@ -1,80 +1,35 @@
-#' filter_quantiles
+#' Replace outliers with NA by quantile threshold
 #'
-#' Replaces outliers with NAs.
+#' Replaces values in the selected columns that fall above (or below) a
+#' quantile threshold with `NA`. All other columns are left unchanged.
 #'
-#' @param data
-#' Provide data frame in tibble format.
-#' @param .cols
-#' Specify numeric columns that should be screened for NAs.
-#' @param probs
-#' Sequence that determines step size for quantiles.
-#' @param quantile_position
-#' Position in the sequence determined by probs. Values within quantiles higher than
-#' quantile_position will be replaced by NA
+#' @param data A data frame.
+#' @param .cols Column names or positions passed to [dplyr::any_of()].
+#' @param probs Numeric scalar; the quantile probability used as the threshold
+#'   (default `0.95`).
+#' @param upper_or_lower `"upper"` (default) to replace values **above** the
+#'   threshold with `NA`, or `"lower"` to replace values **below** it.
 #'
-#' @returns
-#' data
+#' @return The input data frame with out-of-range values in `.cols` set to `NA`.
 #' @export
+#'
 #' @examples
-
-filter_quantiles <- function(
-  data,
-  .cols,
-  probs = seq(0, 1, 0.05),
-  quantile_position = 20,
-  upper_or_lower = "upper"
-) {
-  data_095 <- data |>
-    dplyr::select(dplyr::any_of({{ .cols }})) |>
-    dplyr::mutate(dplyr::across(dplyr::everything(), \(x) {
-      stats::quantile(x, na.rm = TRUE, probs = probs)[[quantile_position]]
-    })) |>
-    dplyr::distinct()
-
-  orig_cols <- colnames(data)
-
-  data_quantiles <- tibble::tibble(ref = 1:nrow(data))
-  for (n in seq_along(.cols)) {
-    element <- colnames(data[.cols[[n]]])
-
-    if (stringr::str_detect(upper_or_lower, "u")) {
-      data_filtered <- data |>
-        dplyr::mutate(ref = 1:dplyr::n()) |>
-        dplyr::filter(
-          !!dplyr::sym(element) <= data_095 |> dplyr::pull(element)
-        ) |>
-        dplyr::select(dplyr::all_of(c("ref", element)))
-    } else if (stringr::str_detect(upper_or_lower, "l")) {
-      data_filtered <- data |>
-        dplyr::mutate(ref = 1:dplyr::n()) |>
-        dplyr::filter(
-          !!dplyr::sym(element) >= data_095 |> dplyr::pull(element)
-        ) |>
-        dplyr::select(dplyr::all_of(c("ref", element)))
-    } else {
-      stop(
-        "Please choose for upper_or_lower either 'upper' or 'lower' as an argument."
-      )
+#' d <- data.frame(x = c(1, 2, 3, 4, 100), y = c(5, 6, 7, 8, 9))
+#' filter_quantiles(d, .cols = c("x", "y"), probs = 0.95)
+filter_quantiles <- function(data,
+                             .cols,
+                             probs          = 0.95,
+                             upper_or_lower = "upper") {
+    if (!upper_or_lower %in% c("upper", "lower")) {
+        stop("upper_or_lower must be either 'upper' or 'lower'.")
     }
-    data_quantiles <- dplyr::left_join(
-      data_quantiles,
-      data_filtered,
-      by = join_by(ref)
-    )
-  }
-
-  data_quantiles <- data_quantiles |>
-    dplyr::filter(dplyr::if_any(.cols = dplyr::everything(), ~ !is.na(.)))
-
-  data_new <- dplyr::left_join(
     data |>
-      dplyr::mutate(ref = 1:dplyr::n()) |>
-      dplyr::select(-dplyr::any_of({{ .cols }})),
-    data_quantiles,
-    by = join_by(ref)
-  ) |>
-    dplyr::select(-ref) |>
-    dplyr::select(orig_cols)
-
-  return(data_new)
+        dplyr::mutate(dplyr::across(
+            dplyr::any_of({{ .cols }}),
+            \(x) {
+                threshold <- stats::quantile(x, probs = probs, na.rm = TRUE)
+                if (upper_or_lower == "upper") dplyr::if_else(x <= threshold, x, NA)
+                else                           dplyr::if_else(x >= threshold, x, NA)
+            }
+        ))
 }

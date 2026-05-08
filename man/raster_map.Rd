@@ -2,22 +2,41 @@
 % Please edit documentation in R/raster_map.R
 \name{raster_map}
 \alias{raster_map}
-\title{Raster Map}
+\title{Bin point data onto a regular raster grid}
 \usage{
 raster_map(data, x, y, n = 100)
 }
 \arguments{
-\item{data}{Provide dataframe with x and y coordinates.}
+\item{data}{A data frame with at least two numeric coordinate columns.}
 
-\item{x}{Column mapped to x coordinates}
+\item{x}{Column to use as the x coordinate (tidy-select / unquoted).}
 
-\item{y}{Column mapped to y coordinates}
+\item{y}{Column to use as the y coordinate (tidy-select / unquoted).}
 
-\item{n}{Number of data squares the old dataframe is divided into}
+\item{n}{Number of grid cells along each axis (default \code{100}), producing an
+\eqn{n \times n} grid.}
 }
 \value{
-data
+A tibble with \eqn{n^2} rows containing:
+\describe{
+\item{\code{x_raster}, \code{y_raster}}{Grid cell centre coordinates.}
+\item{\code{index_x}, \code{index_y}}{Integer grid indices (1 to \code{n}).}
+\item{...}{All columns from \code{data}, \code{NA} where no observation falls in
+the cell.}
+}
 }
 \description{
-Computes a square raster with n tiles from two columns.
+Creates an \eqn{n \times n} regular grid spanning the range of \code{x} and \code{y},
+assigns each input observation to its nearest grid cell, and returns the
+full grid with input data columns joined on. Grid cells with no observations
+receive \code{NA} for all data columns. The result can be passed directly to
+\code{\link[ggplot2:geom_raster]{ggplot2::geom_raster()}} using \code{x_raster} and \code{y_raster} as coordinates.
+}
+\examples{
+d <- data.frame(
+  x      = runif(200, 0, 100),
+  y      = runif(200, 0, 100),
+  Au_ppm = runif(200)
+)
+raster_map(d, x, y, n = 20)
 }

@@ -2,29 +2,29 @@
 % Please edit documentation in R/filter_quantiles.R
 \name{filter_quantiles}
 \alias{filter_quantiles}
-\title{filter_quantiles}
+\title{Replace outliers with NA by quantile threshold}
 \usage{
-filter_quantiles(
-  data,
-  .cols,
-  probs = seq(0, 1, 0.05),
-  quantile_position = 20,
-  upper_or_lower = "upper"
-)
+filter_quantiles(data, .cols, probs = 0.95, upper_or_lower = "upper")
 }
 \arguments{
-\item{data}{Provide data frame in tibble format.}
+\item{data}{A data frame.}
 
-\item{.cols}{Specify numeric columns that should be screened for NAs.}
+\item{.cols}{Column names or positions passed to \code{\link[dplyr:any_of]{dplyr::any_of()}}.}
 
-\item{probs}{Sequence that determines step size for quantiles.}
+\item{probs}{Numeric scalar; the quantile probability used as the threshold
+(default \code{0.95}).}
 
-\item{quantile_position}{Position in the sequence determined by probs. Values within quantiles higher than
-quantile_position will be replaced by NA}
+\item{upper_or_lower}{\code{"upper"} (default) to replace values \strong{above} the
+threshold with \code{NA}, or \code{"lower"} to replace values \strong{below} it.}
 }
 \value{
-data
+The input data frame with out-of-range values in \code{.cols} set to \code{NA}.
 }
 \description{
-Replaces outliers with NAs.
+Replaces values in the selected columns that fall above (or below) a
+quantile threshold with \code{NA}. All other columns are left unchanged.
+}
+\examples{
+d <- data.frame(x = c(1, 2, 3, 4, 100), y = c(5, 6, 7, 8, 9))
+filter_quantiles(d, .cols = c("x", "y"), probs = 0.95)
 }

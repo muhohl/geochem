@@ -1,21 +1,33 @@
-#' Raster Map
+#' Bin point data onto a regular raster grid
 #'
-#' Computes a square raster with n tiles from two columns.
+#' Creates an \eqn{n \times n} regular grid spanning the range of `x` and `y`,
+#' assigns each input observation to its nearest grid cell, and returns the
+#' full grid with input data columns joined on. Grid cells with no observations
+#' receive `NA` for all data columns. The result can be passed directly to
+#' [ggplot2::geom_raster()] using `x_raster` and `y_raster` as coordinates.
 #'
-#' @param data
-#' Provide dataframe with x and y coordinates.
-#' @param x
-#' Column mapped to x coordinates
-#' @param y
-#' Column mapped to y coordinates
-#' @param n
-#' Number of data squares the old dataframe is divided into
+#' @param data A data frame with at least two numeric coordinate columns.
+#' @param x Column to use as the x coordinate (tidy-select / unquoted).
+#' @param y Column to use as the y coordinate (tidy-select / unquoted).
+#' @param n Number of grid cells along each axis (default `100`), producing an
+#'   \eqn{n \times n} grid.
 #'
-#' @return data
+#' @return A tibble with \eqn{n^2} rows containing:
+#'   \describe{
+#'     \item{`x_raster`, `y_raster`}{Grid cell centre coordinates.}
+#'     \item{`index_x`, `index_y`}{Integer grid indices (1 to `n`).}
+#'     \item{...}{All columns from `data`, `NA` where no observation falls in
+#'       the cell.}
+#'   }
 #' @export
 #'
 #' @examples
-
+#' d <- data.frame(
+#'   x      = runif(200, 0, 100),
+#'   y      = runif(200, 0, 100),
+#'   Au_ppm = runif(200)
+#' )
+#' raster_map(d, x, y, n = 20)
 raster_map <- function(data, x, y, n = 100) {
   x_vector <- seq(
     min(data |> dplyr::pull({{ x }})),

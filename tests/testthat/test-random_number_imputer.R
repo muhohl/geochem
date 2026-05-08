@@ -1,6 +1,6 @@
 library(testthat)
 
-test_that("Random_Number_Imputer replaces '<X' strings with numeric values", {
+test_that("random_number_imputer replaces '<X' strings with numeric values", {
   df <- data.frame(
     ID  = c("A", "B", "C", "D"),
     Au  = c("<0.5", "1.2", "<0.5", "3.4"),
@@ -8,7 +8,7 @@ test_that("Random_Number_Imputer replaces '<X' strings with numeric values", {
     stringsAsFactors = FALSE
   )
 
-  result <- Random_Number_Imputer(df, columns = 2:3)
+  result <- random_number_imputer(df, columns = 2:3)
 
   expect_type(result$Au, "double")
   expect_type(result$Ag, "double")
@@ -28,22 +28,22 @@ test_that("Random_Number_Imputer replaces '<X' strings with numeric values", {
   expect_true(result$Ag[4] >= 0 && result$Ag[4] < 2.0)
 })
 
-test_that("Random_Number_Imputer leaves columns without BDL values unchanged", {
+test_that("random_number_imputer leaves columns without BDL values unchanged", {
   df <- data.frame(
     ID  = "X",
     val = "3.14",
     stringsAsFactors = FALSE
   )
-  result <- Random_Number_Imputer(df, columns = 2)
+  result <- random_number_imputer(df, columns = 2)
   expect_equal(result$val, 3.14)
 })
 
-test_that("Random_Number_Imputer respects a custom split_symbol", {
+test_that("random_number_imputer respects a custom split_symbol", {
   df <- data.frame(
     Cu = c("bdl0.1", "0.8", "bdl0.1"),
     stringsAsFactors = FALSE
   )
-  result <- Random_Number_Imputer(df, columns = 1, split_symbol = "bdl")
+  result <- random_number_imputer(df, columns = 1, split_symbol = "bdl")
   expect_type(result$Cu, "double")
   expect_true(result$Cu[1] >= 0 && result$Cu[1] < 0.1)
   expect_equal(result$Cu[2], 0.8)

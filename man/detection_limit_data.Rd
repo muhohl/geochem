@@ -23,7 +23,7 @@ detection_limit_data
 \description{
 Forty synthetic PGE / noble-metal assay results. A fraction of values fall
 below the instrument detection limit and are stored as strings such as
-\code{"<0.05"}. Use with \code{\link[=Random_Number_Imputer]{Random_Number_Imputer()}} to replace them with
+\code{"<0.05"}. Use with \code{\link[=random_number_imputer]{random_number_imputer()}} to replace them with
 uniformly distributed random values below the detection threshold.
 }
 \keyword{datasets}

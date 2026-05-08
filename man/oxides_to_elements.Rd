@@ -2,16 +2,44 @@
 % Please edit documentation in R/oxides_to_elements.R
 \name{oxides_to_elements}
 \alias{oxides_to_elements}
-\title{Oxides to Elements}
+\title{Convert oxide wt\% columns to element wt\%}
 \usage{
 oxides_to_elements(data)
 }
 \arguments{
-\item{data}{Dataframe as tibble}
+\item{data}{A data frame containing major element oxide columns (wt \%).}
 }
 \value{
-A tibble containing the elements.
+A tibble with one column per recognised element, named with the
+\verb{_pct} suffix (e.g. \code{na_pct}, \code{fe_pct}). Non-oxide columns are not
+carried forward; use \code{\link[dplyr:bind_cols]{dplyr::bind_cols()}} to reattach identifiers.
 }
 \description{
-Convert oxides found in the whole rock geochemical data sets to elements.
+Detects major-element oxide columns in \code{data}, applies the stoichiometric
+element-to-oxide mass ratio, and returns a tibble of element weight percent
+values. Column name matching is case-insensitive and tolerates common
+alternative spellings (e.g. \code{mg_o}, \code{si_o2}, \code{ti_o2}, \code{mn_o}).
+}
+\details{
+Recognised oxides and their output column names:
+\describe{
+\item{\code{Na2O}}{→ \code{na_pct}}
+\item{\code{MgO}}{→ \code{mg_pct}}
+\item{\code{Al2O3}}{→ \code{al_pct}}
+\item{\code{SiO2}}{→ \code{si_pct}}
+\item{\code{P2O5}}{→ \code{p_pct}}
+\item{\code{K2O}}{→ \code{k_pct}}
+\item{\code{TiO2}}{→ \code{ti_pct}}
+\item{\code{Cr2O3}}{→ \code{cr_pct}}
+\item{\code{MnO}}{→ \code{mn_pct}}
+\item{\code{Fe2O3}}{→ \code{fe_pct} (all iron treated as Fe³⁺)}
+}
+
+All other columns are dropped. If multiple source columns resolve to the
+same element (e.g. duplicate oxide columns), their values are summed
+row-wise.
+}
+\examples{
+oxides_to_elements(data.frame(SiO2 = 45.0, Al2O3 = 15.0, Fe2O3 = 10.0))
+
 }

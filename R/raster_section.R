@@ -35,9 +35,9 @@
 #' @examples
 #' dh <- data.frame(
 #'   hole_id   = rep(paste0("DH-0", 1:3), each = 20),
-#'   x         = rep(c(100, 200, 300), each = 20),
-#'   y         = rep(c(100, 150, 120), each = 20),
-#'   z         = rep(seq(0, 190, by = 10), 3),
+#'   mid_x         = rep(c(100, 200, 300), each = 20),
+#'   mid_y         = rep(c(100, 150, 120), each = 20),
+#'   mid_z         = rep(seq(0, 190, by = 10), 3),
 #'   Au_ppm    = runif(60),
 #'   lithology = sample(c("Granite", "Schist"), 60, replace = TRUE)
 #' )
