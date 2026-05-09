@@ -8,10 +8,9 @@
 <!-- badges: end -->
 
 **geochem** is an R package for wrangling, analysing, and visualising
-geochemical data, with a particular focus on Laser-ICP-MS datasets. It
-provides functions for element conversion, outlier filtering,
-classification diagrams, spider plots, and publication-quality laser
-maps.
+geochemical data. It provides functions for element conversion,
+desurveying and projecting drillhole data, classification diagrams,
+spider plots, and publication-quality laser maps.
 
 ## Installation
 
@@ -76,13 +75,11 @@ dplyr::glimpse(whole_rock_data)
 
 ### Imputing below-detection-limit values
 
-`Random_Number_Imputer()` replaces `"<X"` strings with a uniform random
-value drawn from `[0, X]`. `Random_Number_Imputer()` searches for the
-“\<” symbole and replaces the number with a random value between 0 and
-that number.
+`random_number_imputer()` replaces `"<X"` strings with a uniform random
+value drawn from `[0, X]`.
 
 ``` r
-dl_imputed <- Random_Number_Imputer(
+dl_imputed <- random_number_imputer(
   data = detection_limit_data,
   columns = 2:5,
   split_symbol = "<"
@@ -90,12 +87,12 @@ dl_imputed <- Random_Number_Imputer(
 
 head(dl_imputed)
 #>   Sample_ID   Au_ppb   Pd_ppb   Pt_ppb Ag_ppb
-#> 1    DL-001 0.005248 0.035000 0.037111  2.542
-#> 2    DL-002 0.013856 0.027026 0.065825  1.503
-#> 3    DL-003 0.087000 0.500000 0.036944  1.806
-#> 4    DL-004 0.032791 0.040040 0.214000  1.017
-#> 5    DL-005 0.046217 0.110000 0.074987  0.831
-#> 6    DL-006 0.012683 0.095921 0.706000  4.201
+#> 1    DL-001 0.012192 0.035000 0.037838  2.542
+#> 2    DL-002 0.003653 0.058039 0.027229  1.503
+#> 3    DL-003 0.087000 0.500000 0.050376  1.806
+#> 4    DL-004 0.011348 0.056814 0.214000  1.017
+#> 5    DL-005 0.037078 0.110000 0.049771  0.831
+#> 6    DL-006 0.028668 0.009817 0.706000  4.201
 ```
 
 ------------------------------------------------------------------------
@@ -127,26 +124,25 @@ dplyr::glimpse(elements_pct)
 ### Removing outliers with `filter_quantiles()`
 
 `filter_quantiles()` replaces values beyond a quantile threshold with
-`NA`. Below we remove the top 5 % of Fe and Cu from the laser map
-(`quantile_position = 19` = 95th percentile with default 5 % steps).
+`NA`. Below we remove the top 5 % of Fe and Cu from the laser map.
 
 ``` r
 laser_clean <- filter_quantiles(
   data = laser_map_data,
   .cols = c("Fe_ppm", "Cu_ppm"),
-  quantile_position = 19,
+  probs = 0.95,
   upper_or_lower = "upper"
 )
 
 summary(laser_clean[c("Fe_ppm", "Cu_ppm")])
-#>      Fe_ppm          Cu_ppm       
-#>  Min.   : 1106   Min.   :  1.393  
-#>  1st Qu.: 3598   1st Qu.: 11.482  
-#>  Median : 4996   Median : 20.349  
-#>  Mean   : 5652   Mean   : 29.596  
-#>  3rd Qu.: 7112   3rd Qu.: 34.709  
-#>  Max.   :16074   Max.   :316.063  
-#>  NAs    :250     NAs    :250
+#>      Fe_ppm          Cu_ppm        
+#>  Min.   : 1106   Min.   :   1.393  
+#>  1st Qu.: 3683   1st Qu.:  11.991  
+#>  Median : 5168   Median :  21.728  
+#>  Mean   : 6452   Mean   :  62.858  
+#>  3rd Qu.: 7592   3rd Qu.:  38.577  
+#>  Max.   :26037   Max.   :1061.133  
+#>  NAs    :125     NAs    :125
 ```
 
 ------------------------------------------------------------------------
@@ -201,9 +197,10 @@ ggspider(
 `laser_map2()` produces publication-quality elemental maps from
 laser-ablation point data. The colour scale is chosen automatically
 based on the column name: viridis for regular elements, a diverging
-gradient for ratios or PCA scores, and Okabe–Ito for cluster maps.
-Ideally used with `patchwork::wrap_plots()` or `cowplot::plot_grid()`
-functions.
+gradient for ratios or PCA scores, and Okabe–Ito for cluster maps. It
+uses `geom_raster()`, which means that the function can be applied to
+any 2-dimensional, equally spaced data set. Ideally used with
+`patchwork::wrap_plots()` or `cowplot::plot_grid()` functions.
 
 ``` r
 maps <- laser_map2(
@@ -225,12 +222,13 @@ patchwork::wrap_plots(maps[1:2])
 
 | Category | Functions |
 |----|----|
-| Data wrangling | `Random_Number_Imputer()`, `oxides_to_elements()`, `niggli_numbers()`, `filter_quantiles()`, `raster_map()` |
-| Classification diagrams | `geom_tas_diagram()`, `mgt_class_D_B()`, `geom_dare()` |
-| Distribution plots | `box_plot()`, `hist_plot()`, `qq_plot()`, `ggspider()` |
+| Data wrangling | `random_number_imputer()`, `oxides_to_elements()`, `niggli_numbers()`, `filter_quantiles()`, `fsp_molar()` |
+| Classification diagrams | `geom_tas_diagram()`, `geom_magnetite_deposit()`, `geom_magnetite_origin()`, `ggfspmolar()` |
+| Distribution & QQ plots | `ggcoloredqq()`, `ggspider()` |
 | PCA | `pca_plot()`, `geom_pca_arrows()`, `eigen_value_plot()` |
-| Laser maps | `laser_map2()`, `clipping_element()` (`laser_map()` deprecated) |
-| XMOD | `xmod_df_wrangler()`, `xmod_double_mapping()` |
+| Laser maps | `laser_map2()`, `clipping_element()`, `raster_map()` (`laser_map()` deprecated) |
+| Drillholes | `desurvey_holes()`, `drillhole_section()`, `raster_section()` |
+| XMOD | `xmod_df_wrangler()`, `xmod_double_mapping()`, `xmod_samples_list()` |
 
 For full documentation and worked examples see
 `vignette("introduction", package = "geochem")`.

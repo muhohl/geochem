@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 ## Overview
 
 **geochem** provides tools for wrangling, analysing, and visualising geochemical
-data, with particular emphasis on Laser-ICP-MS datasets. This vignette walks
+data. This vignette walks
 through the main function categories using three built-in synthetic datasets.
 
 ```{r load}
