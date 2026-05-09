@@ -2,7 +2,7 @@
 % Please edit documentation in R/pca_plot.R
 \name{pca_plot}
 \alias{pca_plot}
-\title{Title}
+\title{PCA score plot}
 \usage{
 pca_plot(pca_rec, pc_x = 1, pc_y = 2, data = NA, ...)
 }
@@ -13,11 +13,19 @@ pca_plot(pca_rec, pc_x = 1, pc_y = 2, data = NA, ...)
 
 \item{pc_y}{PC shown on y-axis.}
 
+\item{data}{Optional data frame of pre-baked PCA scores. If \code{NA} (default) scores are
+extracted from \code{pca_rec} via \code{\link[recipes:bake]{recipes::bake()}}.}
+
 \item{...}{arguments passed on to labs.}
 }
 \value{
-ggplot object
+A ggplot object.
 }
 \description{
-Title
+PCA score plot
+}
+\examples{
+\dontrun{
+pca_plot(my_recipe, pc_x = 1, pc_y = 2)
+}
 }

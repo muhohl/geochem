@@ -27,7 +27,7 @@ lowercase.}
 \item{columns}{Integer vector of column positions to plot.}
 
 \item{option}{Viridis colour palette option for standard elements.
-One of \code{"A"} – \code{"H"} or named options such as \code{"turbo"} (default).}
+One of \code{"A"} - \code{"H"} or named options such as \code{"turbo"} (default).}
 
 \item{trans}{Scale transformation applied to standard element channels.
 \code{"log"} (default) or \code{"identity"} for linear.}
@@ -39,7 +39,7 @@ One of \code{"A"} – \code{"H"} or named options such as \code{"turbo"} (defaul
 See \code{\link[scales:label_scientific]{scales::label_scientific()}}.}
 
 \item{plot_label_start}{Single letter from which subplot labels begin
-(e.g. \code{"b"} produces \verb{b)}, \verb{c)}, …). Pass \code{NA} or \code{""} to suppress
+(e.g. \code{"b"} produces \verb{b)}, \verb{c)}, ...). Pass \code{NA} or \code{""} to suppress
 labels (default \code{"b"}).}
 
 \item{plot_label}{Character vector used as the label alphabet
@@ -61,17 +61,17 @@ A named list of ggplot objects.
 }
 \description{
 Creates publication-quality elemental maps from laser-ablation point data.
-Returns a list of ggplot objects — one per selected element — that can be
+Returns a list of ggplot objects -- one per selected element -- that can be
 arranged with \code{\link[ggpubr:ggarrange]{ggpubr::ggarrange()}} or displayed individually.
 }
 \details{
 Colour scale is chosen automatically based on the element name:
 \itemize{
-\item \code{"/"} in name → diverging blue–grey–red gradient (ratios)
-\item \code{"PC"} in name → diverging \code{scico::vikO} palette (PCA scores)
-\item \code{"kNN"} in name → Okabe–Ito categorical colours (cluster maps)
-\item \code{"Temperature"} in name → viridis option controlled by \code{option_Temp}
-\item all other columns → viridis \code{option} with \code{trans} transformation
+\item \code{"/"} in name -> diverging blue-grey-red gradient (ratios)
+\item \code{"PC"} in name -> diverging \code{scico::vikO} palette (PCA scores)
+\item \code{"kNN"} in name -> Okabe-Ito categorical colours (cluster maps)
+\item \code{"Temperature"} in name -> viridis option controlled by \code{option_Temp}
+\item all other columns -> viridis \code{option} with \code{trans} transformation
 }
 }
 \examples{

@@ -9,7 +9,7 @@
 #'   \item{Sample_ID}{Character. Sample identifier (WR-001 to WR-050).}
 #'   \item{rock_type}{Character. Rock classification: Basalt, Andesite, Dacite, or Rhyolite.}
 #'   \item{SiO2, TiO2, Al2O3, Fe2O3, FeO, MnO, MgO, CaO, Na2O, K2O, P2O5}{
-#'     Numeric. Major oxide concentrations in wt \%.}
+#'     Numeric. Major oxide concentrations in wt %.}
 #'   \item{Ni, Cu, Zn, Rb, Sr, Y, Zr, Nb, Ba}{
 #'     Numeric. Trace element concentrations in ppm.}
 #'   \item{La, Ce, Nd, Sm, Eu, Gd, Yb, Lu}{

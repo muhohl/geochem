@@ -32,7 +32,7 @@ geom_magnetite_origin <- function(labels = TRUE, axis_labels = TRUE, textsize = 
     y_knots <- c(10, 1000, 10000, 11000, 16000, 18000, 21000, 24000, 25000)
 
     # Spline in log-log space → smooth on log-scale axes.
-    # Hyman monotone method avoids oscillations near the kink at x ≈ 1.
+    # Hyman monotone method avoids oscillations near the kink at x ~ 1.
     spl <- stats::spline(
         log10(x_knots),
         log10(y_knots),

@@ -14,17 +14,24 @@
 #' Color of the labels text
 #' @param labels_size
 #' Size of the labels
+#' @param label_font_size
+#' Size of the font in the labels (used by geom_label_repel).
+#' @param label_rect_padding
+#' Size of the padding around the labels (used by geom_label_repel).
 #' @param labels_font_size
-#' Size of the font in the labels
+#' Deprecated alias for `label_font_size`.
 #' @param labels_rect_padding
-#' Size of the padding around the labels
+#' Deprecated alias for `label_rect_padding`.
 #' @param ...
 #' Arguments passed on to geom_label_repel, which is drawing the arrows.
 #'
-#' @return ggplot object
+#' @return A list of ggplot2 layer objects.
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' ggplot2::ggplot() + geom_pca_arrows(my_recipe)
+#' }
 geom_pca_arrows <- function(pca_rec,
                             pc_x = 1,
                             pc_y = 2,

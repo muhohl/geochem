@@ -10,10 +10,14 @@
 #' @param ...
 #' size of the labels and ratio of the plot
 #'
-#' @return
+#' @return A ggplot object.
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' pc <- stats::prcomp(mtcars, scale. = TRUE)
+#' eigen_value_plot(pc, sel_pc = c(1, 2), size = 3, ratio = 1)
+#' }
 eigen_value_plot <- function(pcobj, sel_pc = c(1,2), ...) {
 
     expl_var <- (100 * pcobj$sdev[sel_pc]^2/sum(pcobj$sdev^2))

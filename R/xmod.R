@@ -38,6 +38,9 @@ xmod_samples_list <- function(file_pattern, directory) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' xmod_df_wrangler("./XMOD", "XMOD_", "Coords_")
+#' }
 #'
 #' @import magrittr
 xmod_df_wrangler <- function(directory,
@@ -143,6 +146,9 @@ xmod_df_wrangler <- function(directory,
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' xmod_double_mapping(xmod_list, sel_min = c("Pyrite", "Chalcopyrite"))
+#' }
 #'
 #' @import magrittr
 xmod_double_mapping <- function(xmod_dfs_list,

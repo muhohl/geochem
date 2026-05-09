@@ -34,15 +34,24 @@ geom_pca_arrows(
 
 \item{labels_size}{Size of the labels}
 
-\item{labels_font_size}{Size of the font in the labels}
+\item{label_font_size}{Size of the font in the labels (used by geom_label_repel).}
 
-\item{labels_rect_padding}{Size of the padding around the labels}
+\item{label_rect_padding}{Size of the padding around the labels (used by geom_label_repel).}
+
+\item{labels_font_size}{Deprecated alias for \code{label_font_size}.}
+
+\item{labels_rect_padding}{Deprecated alias for \code{label_rect_padding}.}
 
 \item{...}{Arguments passed on to geom_label_repel, which is drawing the arrows.}
 }
 \value{
-ggplot object
+A list of ggplot2 layer objects.
 }
 \description{
 Eigen Value plot geom for tidymodel PCA
+}
+\examples{
+\dontrun{
+ggplot2::ggplot() + geom_pca_arrows(my_recipe)
+}
 }

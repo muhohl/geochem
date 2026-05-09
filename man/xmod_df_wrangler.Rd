@@ -30,3 +30,9 @@ Reads XMOD modal \code{.xls} files and coordinate \code{.csv} files from \code{d
 joins them, and attaches wt\% values from the modal data. Returns a list of
 data frames ready for plotting.
 }
+\examples{
+\dontrun{
+xmod_df_wrangler("./XMOD", "XMOD_", "Coords_")
+}
+
+}

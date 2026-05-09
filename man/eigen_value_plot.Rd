@@ -13,7 +13,16 @@ eigen_value_plot(pcobj, sel_pc = c(1, 2), ...)
 
 \item{...}{size of the labels and ratio of the plot}
 }
+\value{
+A ggplot object.
+}
 \description{
 Plot the Eigen Values and their respective loadings from a PCA. Simple plot
 that doesn't include the data points.
+}
+\examples{
+\dontrun{
+pc <- stats::prcomp(mtcars, scale. = TRUE)
+eigen_value_plot(pc, sel_pc = c(1, 2), size = 3, ratio = 1)
+}
 }

@@ -95,7 +95,7 @@ niggli_numbers <- function(data) {
   # Compute molar values by name; missing oxides fall back to element columns,
   # then to 0 if neither is present.
   mol <- tibble::as_tibble(
-    setNames(
+    stats::setNames(
       lapply(names(mol_wts), function(ox) {
         if (ox %in% names(data_lc)) {
           dplyr::coalesce(data_lc[[ox]] / mol_wts[[ox]], 0)

@@ -1,22 +1,22 @@
 #' Elemental Laser Map Plots
 #'
 #' Creates publication-quality elemental maps from laser-ablation point data.
-#' Returns a list of ggplot objects — one per selected element — that can be
+#' Returns a list of ggplot objects -- one per selected element -- that can be
 #' arranged with [ggpubr::ggarrange()] or displayed individually.
 #'
 #' Colour scale is chosen automatically based on the element name:
-#' * `"/"` in name → diverging blue–grey–red gradient (ratios)
-#' * `"PC"` in name → diverging `scico::vikO` palette (PCA scores)
-#' * `"kNN"` in name → Okabe–Ito categorical colours (cluster maps)
-#' * `"Temperature"` in name → viridis option controlled by `option_Temp`
-#' * all other columns → viridis `option` with `trans` transformation
+#' * `"/"` in name -> diverging blue-grey-red gradient (ratios)
+#' * `"PC"` in name -> diverging `scico::vikO` palette (PCA scores)
+#' * `"kNN"` in name -> Okabe-Ito categorical colours (cluster maps)
+#' * `"Temperature"` in name -> viridis option controlled by `option_Temp`
+#' * all other columns -> viridis `option` with `trans` transformation
 #'
 #' @param data Data frame containing `x` and `y` coordinate columns plus
 #'   numeric element channels. Capital `X`/`Y` are silently renamed to
 #'   lowercase.
 #' @param columns Integer vector of column positions to plot.
 #' @param option Viridis colour palette option for standard elements.
-#'   One of `"A"` – `"H"` or named options such as `"turbo"` (default).
+#'   One of `"A"` - `"H"` or named options such as `"turbo"` (default).
 #' @param trans Scale transformation applied to standard element channels.
 #'   `"log"` (default) or `"identity"` for linear.
 #' @param breaks Numeric vector of colour-scale break positions
@@ -24,7 +24,7 @@
 #' @param labels Label formatter for the colour scale.
 #'   See [scales::label_scientific()].
 #' @param plot_label_start Single letter from which subplot labels begin
-#'   (e.g. `"b"` produces `b)`, `c)`, …). Pass `NA` or `""` to suppress
+#'   (e.g. `"b"` produces `b)`, `c)`, ...). Pass `NA` or `""` to suppress
 #'   labels (default `"b"`).
 #' @param plot_label Character vector used as the label alphabet
 #'   (default `letters`).
@@ -139,7 +139,7 @@ laser_map2 <- function(
                 ) +
                 ggplot2::ggtitle(paste0(plot_enumerator, element))
         } else if (stringr::str_detect(element, "PC")) {
-            if (class(pca_rec) == "recipe") {
+            if (inherits(pca_rec, "recipe")) {
                 expl_var_all <- pca_rec %>%
                     recipes::tidy(id = "pca", type = "variance") %>%
                     dplyr::filter(terms == "percent variance") %>%
@@ -163,7 +163,7 @@ laser_map2 <- function(
         } else if (stringr::str_detect(element, "Temperature")) {
             p.map <- p.map +
                 ggplot2::scale_fill_viridis_c(option = option_Temp) +
-                ggplot2::ggtitle(paste0(plot_enumerator, element, " [°C]"))
+                ggplot2::ggtitle(paste0(plot_enumerator, element, " [deg C]"))
         } else {
             p.map <- p.map +
                 ggplot2::scale_fill_viridis_c(

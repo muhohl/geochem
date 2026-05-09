@@ -21,8 +21,8 @@ knitr::opts_chunk$set(
 ## Overview
 
 **geochem** provides tools for wrangling, analysing, and visualising geochemical
-data. This vignette walks
-through the main function categories using three built-in synthetic datasets.
+data. This vignette walks through the main function categories using three
+built-in synthetic datasets.
 
 ```{r load}
 library(geochem)
@@ -32,15 +32,16 @@ library(ggplot2)
 
 ---
 
-## Built-in test datasets
+## Built-in datasets
 
-The package ships with three synthetic datasets that mirror typical Laser-ICP-MS
-and whole-rock geochemistry workflows.
+The package ships with three synthetic datasets that mirror typical
+laser-ICP-MS and whole-rock geochemistry workflows.
 
 ### `whole_rock_data`
 
 Fifty whole-rock analyses across four volcanic rock types (Basalt, Andesite,
-Dacite, Rhyolite). Columns include major oxides in wt % and trace elements in ppm.
+Dacite, Rhyolite). Columns include major oxides in wt % and trace elements
+in ppm.
 
 ```{r wr-glimpse}
 dplyr::glimpse(whole_rock_data)
@@ -49,7 +50,8 @@ dplyr::glimpse(whole_rock_data)
 ### `laser_map_data`
 
 A 50 × 50 point laser map (2 500 analyses) with x/y coordinates and eight
-element channels in ppm / ppb. A synthetic ore zone is embedded near the centre.
+element channels in ppm / ppb. A synthetic ore zone is embedded near the
+centre.
 
 ```{r lm-glimpse}
 dplyr::glimpse(laser_map_data)
@@ -66,167 +68,224 @@ head(detection_limit_data)
 
 ---
 
-## 1 · Imputing below-detection-limit values
+## 1 · Data preparation
 
-`Random_Number_Imputer()` replaces `"<X"` strings with a random value uniformly
-drawn from `[0, X]`.
+### Imputing below-detection-limit values
+
+`random_number_imputer()` replaces `"<X"` strings with a random value
+uniformly drawn from `[0, X]`.
 
 ```{r random-imputer}
-dl_imputed <- Random_Number_Imputer(
-  data = detection_limit_data,
-  columns = 2:5, # Au_ppb, Pd_ppb, Pt_ppb, Ag_ppb
+dl_imputed <- random_number_imputer(
+  data         = detection_limit_data,
+  columns      = 2:5,   # Au_ppb, Pd_ppb, Pt_ppb, Ag_ppb
   split_symbol = "<"
 )
 
 head(dl_imputed)
 ```
 
----
-
-## 2 · Converting oxides to elements
+### Converting oxides to elements
 
 `oxides_to_elements()` converts wt % oxide columns to wt % element using
-stoichiometric mass ratios. Column names are matched case-insensitively against
-standard oxide formulae (Na2O, MgO, Al2O3, …).
+stoichiometric mass ratios. Column names are matched case-insensitively
+against standard oxide formulae (Na₂O, MgO, Al₂O₃, …).
 
 ```{r oxides-to-elements}
 elements_pct <- oxides_to_elements(whole_rock_data)
 dplyr::glimpse(elements_pct)
 ```
 
----
+### Niggli numbers
 
-## 3 · Niggli numbers
-
-`niggli_numbers()` normalises a major-oxide composition to the Niggli
-parameters used in classical petrochemical classification.
+`niggli_numbers()` normalises a major-oxide composition to Niggli parameters
+following the "Niggli Modified" scheme of McDonald (2024). The four primary
+numbers (`al`, `c`, `alk`, `fm`) always sum to 100. Both oxide wt % and
+element wt % column names are accepted.
 
 ```{r niggli}
 niggli <- niggli_numbers(whole_rock_data)
 dplyr::glimpse(niggli)
 ```
 
----
-
-## 4 · Removing outliers with `filter_quantiles()`
+### Removing outliers with `filter_quantiles()`
 
 `filter_quantiles()` replaces values beyond a chosen quantile threshold with
-`NA`, leaving the rest of the dataframe intact. Here we remove the top 5 % of
-Cu and Zn from the laser map data (quantile_position 19 = 95th percentile in
-the default `probs = seq(0, 1, 0.05)` sequence).
+`NA`, leaving the rest of the data frame intact.
 
 ```{r filter-quantiles}
 laser_clean <- filter_quantiles(
-  data = laser_map_data,
-  .cols = c("Fe_ppm", "Cu_ppm"),
-  quantile_position = 19,
+  data           = laser_map_data,
+  .cols          = c("Fe_ppm", "Cu_ppm"),
+  probs          = 0.95,
   upper_or_lower = "upper"
 )
 
-# NAs introduced at the top tail
 summary(laser_clean[c("Fe_ppm", "Cu_ppm")])
 ```
 
----
+### Feldspar molar ratios
 
-## 5 · Spider (multi-element) plots
+`fsp_molar()` converts Na, K, and Al columns (oxide or element wt %) to
+molar Na/Al and K/Al ratios. Column names containing `"O"` or `"o"` are
+treated as oxides automatically; all others as element wt %.
 
-`ggspider()` produces faceted spider diagrams — one panel per group — with
-median lines and interquartile ribbons. The first element of the `elements`
-vector is used as the grouping variable; the remainder are plotted on the x-axis.
+```{r fsp-molar}
+fsp <- whole_rock_data |>
+  fsp_molar(na = "Na2O", k = "K2O", al = "Al2O3")
 
-```{r spider-plot, fig.height = 6}
-trace_elements <- c("La", "Ce", "Nd", "Sm", "Eu", "Gd", "Yb", "Lu")
-element_order <- trace_elements
-
-ggspider(
-  data = whole_rock_data,
-  elements = c("rock_type", trace_elements),
-  group = "rock_type",
-  levels = element_order,
-  ribbon = TRUE
-)
+dplyr::select(fsp, Sample_ID, rock_type, na_al_molar, k_al_molar) |> head()
 ```
 
 ---
 
-## 6 · Box plots by group
+## 2 · Classification diagrams
 
-`box_plot()` produces one log-scaled boxplot per element, coloured by group, with
-sample counts and mean values annotated.
+### TAS diagram
 
-```{r box-plot}
-box_plot(
-  data = whole_rock_data,
-  elements = list(
-    which(names(whole_rock_data) == "Cu"),
-    which(names(whole_rock_data) == "Ni"),
-    which(names(whole_rock_data) == "Zn")
-  ),
-  group = "rock_type"
-)
-```
+`geom_tas_diagram()` returns ggplot2 layers for the Total Alkali Silica
+classification. Map `SiO2` to x and `Na2O + K2O` to y.
 
----
-
-## 7 · TAS classification diagram
-
-`geom_tas_diagram()` returns a list of ggplot2 layers that draw the Total Alkali
-Silica fields. Map `SiO2` to x and `Na2O + K2O` to y, then add the template.
-
-```{r tas, fig.height = 5}
+```{r tas}
 whole_rock_data |>
   dplyr::mutate(TotalAlkali = Na2O + K2O) |>
   ggplot2::ggplot(ggplot2::aes(x = SiO2, y = TotalAlkali)) +
-  geochem::geom_tas_diagram() +
-  ggplot2::geom_point(
-    ggplot2::aes(colour = rock_type),
-    size = 2.5,
-    alpha = 0.85
-  ) +
+  geom_tas_diagram() +
+  ggplot2::geom_point(ggplot2::aes(colour = rock_type), size = 2.5, alpha = 0.85) +
   ggplot2::scale_colour_brewer(palette = "Set1", name = "Rock type") +
   ggplot2::labs(x = "SiO₂ (wt %)", y = "Na₂O + K₂O (wt %)") +
   ggplot2::theme_classic(base_size = 13)
 ```
 
+### Feldspar molar diagram
+
+`ggfspmolar()` plots the albite–orthoclase join as a molar ratio diagram.
+Add `geom_point()` on top to display samples.
+
+```{r fsp-plot}
+fsp |>
+  ggfspmolar() +
+  ggplot2::geom_point(
+    ggplot2::aes(colour = rock_type),
+    size = 2
+  ) +
+  ggplot2::scale_colour_brewer(palette = "Set1", name = "Rock type") +
+  ggplot2::theme_bw()
+```
+
+### Magnetite deposit-type diagram
+
+`geom_magnetite_deposit()` draws the Ti+V vs Al+Mn discrimination fields
+from Dupuis & Beaudoin (2011). Map Ti+V wt % to x and Al+Mn wt % to y on
+log₁₀ scales.
+
+```{r mgt-deposit, fig.height = 5}
+ggplot2::ggplot() +
+  geom_magnetite_deposit() +
+  ggplot2::scale_x_log10() +
+  ggplot2::scale_y_log10() +
+  ggplot2::theme_bw()
+```
+
+### Magnetite origin diagram
+
+`geom_magnetite_origin()` draws the Ni/Cr vs Ti boundary line from
+Dare et al. (2014) separating magmatic from hydrothermal magnetite.
+Both axes are on log₁₀ scales.
+
+```{r mgt-origin, fig.height = 5}
+ggplot2::ggplot() +
+  geom_magnetite_origin() +
+  ggplot2::scale_x_log10() +
+  ggplot2::scale_y_log10() +
+  ggplot2::theme_bw()
+```
+
 ---
 
-## 8 · Raster mapping
+## 3 · Distribution plots
 
-`raster_map()` bins continuous x/y coordinates into an n × n grid. This is
-useful for regularising irregular laser-ablation paths before further analysis.
+### REE spider plot
+
+`ggspider()` produces faceted spider diagrams — one panel per group — with
+median lines and interquartile ribbons. Pass a `normalization` reference to
+divide by chondrite values before plotting.
+
+```{r spider-plot, fig.height = 6}
+ree <- c("La", "Ce", "Nd", "Sm", "Eu", "Gd", "Yb", "Lu")
+
+ggspider(
+  data      = whole_rock_data,
+  elements  = c("rock_type", ree),
+  group     = "rock_type",
+  levels    = ree,
+  normalization = "mcdonough_sun_1995"
+)
+```
+
+### QQ plots with group colouring
+
+`ggcoloredqq()` produces a quantile-quantile diagram for a single element,
+with points coloured by a grouping variable. Because `geom_qq()` does not
+support per-point colour mapping, theoretical quantiles are computed via
+`ppoints()` and plotted with `geom_point()`.
+
+```{r qq-plot}
+ggcoloredqq(
+  data  = whole_rock_data,
+  element = "Cu",
+  group = "rock_type"
+) +
+  ggplot2::scale_color_brewer(palette = "Set1", name = "Rock type") +
+  ggplot2::theme_bw()
+```
+
+Use `lapply()` to produce plots for multiple elements at once:
+
+```{r qq-multi, eval = FALSE}
+lapply(c("Cu", "Ni", "Zn"), \(el) {
+  ggcoloredqq(whole_rock_data, el, group = "rock_type") +
+    ggplot2::theme_bw()
+})
+```
+
+---
+
+## 4 · Laser element maps
+
+### Raster binning
+
+`raster_map()` bins continuous x/y coordinates into an n × n regular grid,
+useful for regularising irregular laser-ablation paths before plotting or
+further analysis.
 
 ```{r raster-map}
 raster_df <- raster_map(
   data = laser_map_data,
-  x = x,
-  y = y,
-  n = 25 # 25×25 grid
+  x    = x,
+  y    = y,
+  n    = 25
 )
 
 dplyr::glimpse(raster_df)
 ```
 
----
+### Element maps
 
-## 9 · Laser element maps
-
-`laser_map2()` produces publication-quality elemental maps from laser-ablation
-point data. The colour scale is chosen automatically from the column name:
-viridis for regular elements, a diverging gradient for ratios or PCA scores,
-and Okabe–Ito colours for cluster maps. `laser_map()` is deprecated and will
-be removed in a future release — migrate to `laser_map2()`.
+`laser_map2()` produces publication-quality elemental raster maps. The colour
+scale is chosen automatically from the column name: viridis for regular
+elements, a diverging gradient for ratios or PCA scores, and Okabe–Ito for
+cluster maps. Combine maps with `patchwork::wrap_plots()`.
 
 ```{r laser-map, fig.height = 4}
 maps <- laser_map2(
-  data = laser_map_data,
-  columns = c(3, 4, 7), # Fe_ppm, Cu_ppm, Au_ppb
-  trans = "log",
-  unit = ""
+  data    = laser_map_data,
+  columns = c(3, 4, 7),   # Fe_ppm, Cu_ppm, Au_ppb
+  trans   = "log",
+  unit    = ""
 )
 
-# Display the Cu map
-maps[[2]]
+patchwork::wrap_plots(maps[1:2])
 ```
 
 ---

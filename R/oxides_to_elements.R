@@ -7,16 +7,16 @@
 #'
 #' Recognised oxides and their output column names:
 #' \describe{
-#'   \item{`Na2O`}{→ `na_pct`}
-#'   \item{`MgO`}{→ `mg_pct`}
-#'   \item{`Al2O3`}{→ `al_pct`}
-#'   \item{`SiO2`}{→ `si_pct`}
-#'   \item{`P2O5`}{→ `p_pct`}
-#'   \item{`K2O`}{→ `k_pct`}
-#'   \item{`TiO2`}{→ `ti_pct`}
-#'   \item{`Cr2O3`}{→ `cr_pct`}
-#'   \item{`MnO`}{→ `mn_pct`}
-#'   \item{`Fe2O3`}{→ `fe_pct` (all iron treated as Fe³⁺)}
+#'   \item{`Na2O`}{-> `na_pct`}
+#'   \item{`MgO`}{-> `mg_pct`}
+#'   \item{`Al2O3`}{-> `al_pct`}
+#'   \item{`SiO2`}{-> `si_pct`}
+#'   \item{`P2O5`}{-> `p_pct`}
+#'   \item{`K2O`}{-> `k_pct`}
+#'   \item{`TiO2`}{-> `ti_pct`}
+#'   \item{`Cr2O3`}{-> `cr_pct`}
+#'   \item{`MnO`}{-> `mn_pct`}
+#'   \item{`Fe2O3`}{-> `fe_pct` (all iron treated as Fe³⁺)}
 #' }
 #'
 #' All other columns are dropped. If multiple source columns resolve to the

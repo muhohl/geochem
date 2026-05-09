@@ -332,7 +332,7 @@ laser_map <- function(
         # center of the legend.
         if (stringr::str_detect(element, 'PC')) {
             # get the explained variance for the selected principal components
-            if (class(pca_rec) == "prcomp") {
+            if (inherits(pca_rec, "prcomp")) {
                 expl_var <- (100 *
                     pca_rec$sdev[sel_pc]^2 /
                     sum(pca_rec$sdev^2))[as.numeric(stringr::str_extract(
@@ -341,7 +341,7 @@ laser_map <- function(
                 ))]
             }
 
-            if (class(pca_rec) == "recipe") {
+            if (inherits(pca_rec, "recipe")) {
                 expl_var_all <- pca_rec %>%
                     recipes::tidy(id = "pca", type = "variance") %>%
                     dplyr::filter(terms == "percent variance") %>%

@@ -60,3 +60,9 @@ Plots two XMOD maps side-by-side for each sample: one showing
 \code{sel_min} (e.g. ore minerals) and one showing the remaining minerals above
 \code{cutoff} wt\%. Saves each plot to \code{directory}.
 }
+\examples{
+\dontrun{
+xmod_double_mapping(xmod_list, sel_min = c("Pyrite", "Chalcopyrite"))
+}
+
+}

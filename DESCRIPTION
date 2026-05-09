@@ -5,9 +5,9 @@ Authors@R:
     person(given = "Max",
            family = "Hohl",
            role = c("aut", "cre"),
-           email = "max.hohl@utas.edu.au",
+           email = "max.hohl@ubc.ca",
            comment = c(ORCID = "https://orcid.org/0000-0003-1167-541X"))
-Description: Helps to wrangle and analyse geochemical data. Most useful for working with Laser-ICP-MS data. Includes functions for plotting Laser Maps and XMOD data.
+Description: Helps to wrangle and analyse geochemical data. Includes functions for desurveying and projecting drillhole data, plotting Laser Maps and XMOD data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -15,19 +15,36 @@ Roxygen: list(markdown = TRUE)
 Suggests:
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    lifecycle,
+    patchwork
 VignetteBuilder: knitr
 Imports:
     magrittr,
     dplyr,
     ggplot2,
     ggfittext,
+    ggnewscale,
+    ggpubr,
+    ggrepel,
+    ggsci,
+    ggtext,
+    glue,
     grid,
-    stats,
+    gtable,
+    plotly,
+    plyr,
     purrr,
+    readr,
+    readxl,
+    recipes,
+    scales,
+    scico,
+    see,
+    stats,
     stringr,
     tibble,
-    RColorBrewer,
+    tidyr,
 URL: https://github.com/muhohl/geochem
 BugReports: https://github.com/muhohl/geochem/issues
 Config/roxygen2/version: 8.0.0

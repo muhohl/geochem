@@ -1,4 +1,4 @@
-#' Title
+#' PCA score plot
 #'
 #' @param pca_rec
 #' The PCA recipe, a tidymodel object.
@@ -6,13 +6,19 @@
 #' PC shown on x-axis.
 #' @param pc_y
 #' PC shown on y-axis.
+#' @param data
+#' Optional data frame of pre-baked PCA scores. If `NA` (default) scores are
+#' extracted from `pca_rec` via [recipes::bake()].
 #' @param ...
 #' arguments passed on to labs.
 #'
-#' @return ggplot object
+#' @return A ggplot object.
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' pca_plot(my_recipe, pc_x = 1, pc_y = 2)
+#' }
 pca_plot <- function(pca_rec,
                   pc_x = 1,
                   pc_y = 2,
@@ -33,7 +39,7 @@ pca_plot <- function(pca_rec,
 
     base_plot <- df_pca %>%
         ggplot2::ggplot(ggplot2::aes(!!ggplot2::sym(glue::glue("PC{pc_x}")),
-                                     !!sym(glue::glue("PC{pc_y}")))) +
+                                     !!ggplot2::sym(glue::glue("PC{pc_y}")))) +
         ggplot2::labs(x = glue::glue("PC {pc_x} [{round(pca_all_var[pc_x], 1)}%]"),
                       y = glue::glue("PC {pc_y} [{round(pca_all_var[pc_y], 1)}%]"),
                       caption = glue::glue("*n =* {dplyr::pull(count(recipes::bake(pca_rec, new_data = NULL)))}"),

@@ -13,6 +13,8 @@ drillhole_section(data, x = "mid_x", y = "mid_y", z = "mid_z", view_angle = 0)
 
 \item{y}{Name of the northing column (default \code{"y"}).}
 
+\item{z}{Name of the downhole column (default \code{"z"}).}
+
 \item{view_angle}{Viewing azimuth in degrees (default \code{0}).}
 }
 \value{
@@ -26,28 +28,28 @@ ggplot2.
 }
 \section{Projection}{
 
-For angles in the easting-dominant range (≤ 45° or ≥ 315°, and 135°–225°)
+For angles in the easting-dominant range (<= 45 deg or >= 315 deg, and 135-225 deg)
 the full rotation formula is used:
 \deqn{proj\_x = x \cos(\theta) - y \sin(\theta)}
-For angles in the northing-dominant range (45°–135° and 225°–315°) the
-formula is rotated 90° so that northing (\code{y}) is the primary axis:
+For angles in the northing-dominant range (45-135 deg and 225-315 deg) the
+formula is rotated 90 deg so that northing (\code{y}) is the primary axis:
 \deqn{proj\_x = x \cos(\theta) + y \sin(\theta)}
-This gives pure \code{y} at θ = 90° and pure \verb{−y} at θ = 270°. A message is
+This gives pure \code{y} at theta = 90 deg and pure \code{-y} at theta = 270 deg. A message is
 emitted whenever this branch is used.\tabular{ll}{
    \code{view_angle} \tab \code{proj_x} \cr
-   0 / 360 \tab \verb{x·cos θ − y·sin θ} → x \cr
-   90 \tab \verb{x·cos θ + y·sin θ} → y (with message) \cr
-   180 \tab \verb{x·cos θ − y·sin θ} → −x \cr
-   270 \tab \verb{x·cos θ + y·sin θ} → −y (with message) \cr
+   0 / 360 \tab \code{x*cos(theta) - y*sin(theta)} -> x \cr
+   90 \tab \code{x*cos(theta) + y*sin(theta)} -> y (with message) \cr
+   180 \tab \code{x*cos(theta) - y*sin(theta)} -> -x \cr
+   270 \tab \code{x*cos(theta) + y*sin(theta)} -> -y (with message) \cr
 }
 }
 
 \examples{
 dh <- data.frame(
   hole_id = rep(c("DH-01", "DH-02"), each = 10),
-  x       = rep(c(100, 200), each = 10),
-  y       = rep(c(100, 150), each = 10),
-  z       = rep(seq(0, 90, by = 10), 2),
+  mid_x       = rep(c(100, 200), each = 10),
+  mid_y       = rep(c(100, 150), each = 10),
+  mid_z       = rep(seq(0, 90, by = 10), 2),
   Au_ppm  = runif(20)
 )
 

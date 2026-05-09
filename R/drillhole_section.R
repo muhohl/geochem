@@ -6,25 +6,26 @@
 #' ggplot2.
 #'
 #' @section Projection:
-#' For angles in the easting-dominant range (≤ 45° or ≥ 315°, and 135°–225°)
+#' For angles in the easting-dominant range (<= 45 deg or >= 315 deg, and 135-225 deg)
 #' the full rotation formula is used:
 #' \deqn{proj\_x = x \cos(\theta) - y \sin(\theta)}
-#' For angles in the northing-dominant range (45°–135° and 225°–315°) the
-#' formula is rotated 90° so that northing (`y`) is the primary axis:
+#' For angles in the northing-dominant range (45-135 deg and 225-315 deg) the
+#' formula is rotated 90 deg so that northing (`y`) is the primary axis:
 #' \deqn{proj\_x = x \cos(\theta) + y \sin(\theta)}
-#' This gives pure `y` at θ = 90° and pure `−y` at θ = 270°. A message is
+#' This gives pure `y` at theta = 90 deg and pure `-y` at theta = 270 deg. A message is
 #' emitted whenever this branch is used.
 #'
 #' | `view_angle` | `proj_x` |
 #' |---|---|
-#' | 0 / 360 | `x·cos θ − y·sin θ` → x |
-#' | 90 | `x·cos θ + y·sin θ` → y (with message) |
-#' | 180 | `x·cos θ − y·sin θ` → −x |
-#' | 270 | `x·cos θ + y·sin θ` → −y (with message) |
+#' | 0 / 360 | `x*cos(theta) - y*sin(theta)` -> x |
+#' | 90 | `x*cos(theta) + y*sin(theta)` -> y (with message) |
+#' | 180 | `x*cos(theta) - y*sin(theta)` -> -x |
+#' | 270 | `x*cos(theta) + y*sin(theta)` -> -y (with message) |
 #'
 #' @param data Data frame containing drillhole coordinate and assay columns.
 #' @param x Name of the easting column (default `"x"`).
 #' @param y Name of the northing column (default `"y"`).
+#' @param z Name of the downhole column (default `"z"`).
 #' @param view_angle Viewing azimuth in degrees (default `0`).
 #'
 #' @return A tibble identical to `data` with one additional column `proj_x`.
@@ -33,9 +34,9 @@
 #' @examples
 #' dh <- data.frame(
 #'   hole_id = rep(c("DH-01", "DH-02"), each = 10),
-#'   x       = rep(c(100, 200), each = 10),
-#'   y       = rep(c(100, 150), each = 10),
-#'   z       = rep(seq(0, 90, by = 10), 2),
+#'   mid_x       = rep(c(100, 200), each = 10),
+#'   mid_y       = rep(c(100, 150), each = 10),
+#'   mid_z       = rep(seq(0, 90, by = 10), 2),
 #'   Au_ppm  = runif(20)
 #' )
 #'
@@ -55,7 +56,7 @@ drillhole_section <- function(
 
     if (use_y) {
         message(sprintf(
-            "drillhole_section: view_angle = %g° is in the northing-dominant range — using y-primary projection (x·cosθ + y·sinθ) with column \"%s\".",
+            "drillhole_section: view_angle = %g deg is in the northing-dominant range -- using y-primary projection (x*cos(theta) + y*sin(theta)) with column \"%s\".",
             view_angle,
             y
         ))
