@@ -11,7 +11,9 @@ drillhole_section(
   z = "mid_z",
   view_angle = 0,
   dip_angle = 0,
-  coord_sets = NULL
+  coord_sets = NULL,
+  origin_x = NULL,
+  origin_y = NULL
 )
 }
 \arguments{
@@ -43,6 +45,14 @@ Each element must be a character vector of length 3 giving
   to   = c("to_x",   "to_y",   "to_z")
 )
 }\if{html}{\out{</div>}}}
+
+\item{origin_x, origin_y}{Reference easting and northing subtracted from all
+coordinate sets before rotation, so that \code{proj_x} values represent
+metres from the section origin rather than absolute coordinates. Defaults
+to the mean of the primary \code{x} / \code{y} column, which centres the output
+automatically for UTM inputs. Pass explicit values (e.g.
+\verb{origin_x = 350000, origin_y = 6500000}) to fix the origin to a known
+point, or \code{0} to recover the uncentred behaviour.}
 }
 \value{
 A tibble identical to \code{data} with \code{proj_x} appended for the primary
@@ -64,14 +74,17 @@ by \code{\link[=desurvey_holes]{desurvey_holes()}}.
 }
 \section{Azimuth rotation}{
 
-\code{view_angle} rotates the horizontal coordinates around the vertical axis.
+Before rotation, coordinates are centred on (\code{origin_x}, \code{origin_y}) so
+that \code{proj_x} is a distance from the section origin rather than an absolute
+coordinate. This avoids the digit-count imbalance that arises with UTM
+inputs (Northing ~10x larger than Easting).
+
 For angles in the easting-dominant range (<= 45 deg or >= 315 deg, and
-135-225 deg) the standard rotation is used:
-\deqn{proj\_x = x \cos(\theta) - y \sin(\theta)}
-For angles in the northing-dominant range (45-135 deg and 225-315 deg) the
-formula is adjusted so that northing (\code{y}) drives the horizontal axis:
-\deqn{proj\_x = x \cos(\theta) + y \sin(\theta)}
-A message is emitted whenever this branch is used.
+135-225 deg):
+\deqn{proj\_x = (x - x_0)\cos(\theta) - (y - y_0)\sin(\theta)}
+For angles in the northing-dominant range (45-135 deg and 225-315 deg):
+\deqn{proj\_x = (x - x_0)\cos(\theta) + (y - y_0)\sin(\theta)}
+A message is emitted whenever the northing-dominant branch is used.
 }
 
 \section{Dip rotation}{
@@ -79,7 +92,7 @@ A message is emitted whenever this branch is used.
 When \code{dip_angle != 0} the viewing direction is tilted \strong{downward} by that
 angle (positive = looking down into the section). The perpendicular
 into-section distance is first computed:
-\deqn{proj\_y = x \sin(\theta) + y \cos(\theta)}
+\deqn{proj\_y = (x - x_0)\sin(\theta) + (y - y_0)\cos(\theta)}
 The vertical coordinate is then projected onto the tilted view plane:
 \deqn{proj\_z = proj\_y \sin(\varphi) + z \cos(\varphi)}
 where \eqn{\varphi} is \code{dip_angle}. Because the gaze points downward,
@@ -105,8 +118,11 @@ dh <- data.frame(
   Au_ppm  = runif(20)
 )
 
-# Standard vertical section (mid points only)
+# Standard vertical section – proj_x is centred on the data mean
 drillhole_section(dh, view_angle = 45)
+
+# Fix origin to a known UTM coordinate
+drillhole_section(dh, view_angle = 45, origin_x = 150, origin_y = 125)
 
 # 3-D perspective + project from/to segment endpoints
 drillhole_section(
