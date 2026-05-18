@@ -1,78 +1,157 @@
+# Internal: apply azimuth + dip projection to one x/y/z triplet.
+# Returns a named list with proj_x (always) and proj_z (when dip_rad != 0).
+.project_coords <- function(data, x_col, y_col, z_col, angle_rad, dip_rad) {
+    xv <- data[[x_col]]
+    yv <- data[[y_col]]
+
+    proj_x <- xv * cos(angle_rad) - yv * sin(angle_rad)
+    out <- list(proj_x = proj_x)
+
+    if (dip_rad != 0) {
+        proj_y <- xv * sin(angle_rad) + yv * cos(angle_rad)
+        out$proj_z <- proj_y * sin(dip_rad) + data[[z_col]] * cos(dip_rad)
+    }
+    out
+}
+
+
 #' Drillhole cross-section projection
 #'
-#' Projects drillhole x/y coordinates onto a vertical section plane defined by
-#' a viewing angle and returns a tibble with a `proj_x` column appended. The
-#' result can be passed directly to [raster_section()] or plotted manually with
-#' ggplot2.
+#' Projects drillhole coordinate columns onto a section plane defined by a
+#' viewing azimuth and an optional dip tilt, then returns a tibble with the
+#' projected columns appended. The result can be passed directly to
+#' [raster_section()] or plotted manually with ggplot2.
 #'
-#' @section Projection:
-#' For angles in the easting-dominant range (<= 45 deg or >= 315 deg, and 135-225 deg)
-#' the full rotation formula is used:
+#' The primary coordinate triplet (`x`, `y`, `z`) is projected to `proj_x`
+#' (and `proj_z` when `dip_angle != 0`). Additional triplets supplied via
+#' `coord_sets` are projected to `{name}_proj_x` (and `{name}_proj_z`), which
+#' is useful for projecting the `from_x/y/z` and `to_x/y/z` columns produced
+#' by [desurvey_holes()].
+#'
+#' @section Azimuth rotation:
+#' `view_angle` rotates the horizontal coordinates around the vertical axis.
+#' For angles in the easting-dominant range (<= 45 deg or >= 315 deg, and
+#' 135-225 deg) the standard rotation is used:
 #' \deqn{proj\_x = x \cos(\theta) - y \sin(\theta)}
 #' For angles in the northing-dominant range (45-135 deg and 225-315 deg) the
-#' formula is rotated 90 deg so that northing (`y`) is the primary axis:
+#' formula is adjusted so that northing (`y`) drives the horizontal axis:
 #' \deqn{proj\_x = x \cos(\theta) + y \sin(\theta)}
-#' This gives pure `y` at theta = 90 deg and pure `-y` at theta = 270 deg. A message is
-#' emitted whenever this branch is used.
+#' A message is emitted whenever this branch is used.
 #'
-#' | `view_angle` | `proj_x` |
-#' |---|---|
-#' | 0 / 360 | `x*cos(theta) - y*sin(theta)` -> x |
-#' | 90 | `x*cos(theta) + y*sin(theta)` -> y (with message) |
-#' | 180 | `x*cos(theta) - y*sin(theta)` -> -x |
-#' | 270 | `x*cos(theta) + y*sin(theta)` -> -y (with message) |
+#' @section Dip rotation:
+#' When `dip_angle != 0` the viewing direction is tilted **downward** by that
+#' angle (positive = looking down into the section). The perpendicular
+#' into-section distance is first computed:
+#' \deqn{proj\_y = x \sin(\theta) + y \cos(\theta)}
+#' The vertical coordinate is then projected onto the tilted view plane:
+#' \deqn{proj\_z = proj\_y \sin(\varphi) + z \cos(\varphi)}
+#' where \eqn{\varphi} is `dip_angle`. Because the gaze points downward,
+#' surface-level points behind the section (large `proj_y`, `z = 0`) appear
+#' *above* the zero reference in the plot. Setting `dip_angle` to the true dip
+#' of the target structure makes that structure appear edge-on. Use `proj_z`
+#' (or `{name}_proj_z`) on the vertical plot axis instead of the raw `z`
+#' column.
 #'
 #' @param data Data frame containing drillhole coordinate and assay columns.
-#' @param x Name of the easting column (default `"x"`).
-#' @param y Name of the northing column (default `"y"`).
-#' @param z Name of the downhole column (default `"z"`).
+#' @param x Name of the easting column (default `"mid_x"`).
+#' @param y Name of the northing column (default `"mid_y"`).
+#' @param z Name of the downhole/elevation column (default `"mid_z"`).
 #' @param view_angle Viewing azimuth in degrees (default `0`).
+#' @param dip_angle Downward tilt of the viewing direction in degrees from
+#'   horizontal (default `0`, positive = looking down). When non-zero a
+#'   `proj_z` column (and `{name}_proj_z` for each entry in `coord_sets`) is
+#'   added. Setting this to the true dip of the target structure makes that
+#'   structure appear edge-on (e.g. `dip_angle = 60` for a 60-deg-dipping
+#'   lens).
+#' @param coord_sets Named list of additional coordinate triplets to project.
+#'   Each element must be a character vector of length 3 giving
+#'   `c(x_col, y_col, z_col)`. The projected columns are named
+#'   `{name}_proj_x` and (when `dip_angle != 0`) `{name}_proj_z`. Example for
+#'   [desurvey_holes()] output:
+#'   ```r
+#'   coord_sets = list(
+#'     from = c("from_x", "from_y", "from_z"),
+#'     to   = c("to_x",   "to_y",   "to_z")
+#'   )
+#'   ```
 #'
-#' @return A tibble identical to `data` with one additional column `proj_x`.
+#' @return A tibble identical to `data` with `proj_x` appended for the primary
+#'   triplet, `{name}_proj_x` for each entry in `coord_sets`, and the
+#'   corresponding `proj_z` / `{name}_proj_z` columns when `dip_angle != 0`.
 #' @export
 #'
 #' @examples
 #' dh <- data.frame(
 #'   hole_id = rep(c("DH-01", "DH-02"), each = 10),
-#'   mid_x       = rep(c(100, 200), each = 10),
-#'   mid_y       = rep(c(100, 150), each = 10),
-#'   mid_z       = rep(seq(0, 90, by = 10), 2),
+#'   mid_x   = rep(c(100, 200), each = 10),
+#'   mid_y   = rep(c(100, 150), each = 10),
+#'   mid_z   = rep(seq(0, -90, by = -10), 2),
+#'   from_x  = rep(c(100, 200), each = 10),
+#'   from_y  = rep(c(100, 150), each = 10),
+#'   from_z  = rep(seq(0, -90, by = -10), 2),
+#'   to_x    = rep(c(100, 200), each = 10),
+#'   to_y    = rep(c(100, 150), each = 10),
+#'   to_z    = rep(seq(-10, -100, by = -10), 2),
 #'   Au_ppm  = runif(20)
 #' )
 #'
+#' # Standard vertical section (mid points only)
 #' drillhole_section(dh, view_angle = 45)
-#' drillhole_section(dh, view_angle = 90)   # switches to y projection
+#'
+#' # 3-D perspective + project from/to segment endpoints
+#' drillhole_section(
+#'   dh,
+#'   view_angle = 45,
+#'   dip_angle  = 30,
+#'   coord_sets = list(
+#'     from = c("from_x", "from_y", "from_z"),
+#'     to   = c("to_x",   "to_y",   "to_z")
+#'   )
+#' )
 drillhole_section <- function(
     data,
     x = "mid_x",
     y = "mid_y",
     z = "mid_z",
-    view_angle = 0
+    view_angle = 0,
+    dip_angle  = 0,
+    coord_sets = NULL
 ) {
-    angle <- view_angle %% 360
-    use_y <- (angle > 45 & angle < 135) | (angle > 225 & angle < 315)
-
+    angle     <- view_angle %% 360
+    use_y     <- (angle > 45 & angle < 135) | (angle > 225 & angle < 315)
     angle_rad <- angle * pi / 180
 
     if (use_y) {
         message(sprintf(
-            "drillhole_section: view_angle = %g deg is in the northing-dominant range -- using y-primary projection (x*cos(theta) + y*sin(theta)) with column \"%s\".",
-            view_angle,
-            y
+            "drillhole_section: view_angle = %g deg is in the northing-dominant range -- using y-primary projection with column \"%s\".",
+            view_angle, y
         ))
-        angle_rad <- (angle + 90) * pi / 180
-        tibble::as_tibble(data) |>
-            dplyr::mutate(
-                proj_x = .data[[y]] *
-                    cos(angle_rad) +
-                    .data[[x]] * sin(angle_rad)
-            )
+        # Adjusted angle for the northing-dominant branch; the original
+        # angle_rad is still used for the dip proj_y calculation below.
+        angle_rad_h <- (angle + 90) * pi / 180
     } else {
-        tibble::as_tibble(data) |>
-            dplyr::mutate(
-                proj_x = .data[[x]] *
-                    cos(angle_rad) -
-                    .data[[y]] * sin(angle_rad)
-            )
+        angle_rad_h <- angle_rad
     }
+
+    dip_rad <- dip_angle * pi / 180
+
+    result <- tibble::as_tibble(data)
+
+    # Primary triplet -> proj_x (and proj_z)
+    primary <- .project_coords(result, x, y, z, angle_rad_h, dip_rad)
+    result$proj_x <- primary$proj_x
+    if (!is.null(primary$proj_z)) result$proj_z <- primary$proj_z
+
+    # Additional triplets -> {name}_proj_x (and {name}_proj_z)
+    for (nm in names(coord_sets)) {
+        cols <- coord_sets[[nm]]
+        if (length(cols) != 3) {
+            stop(sprintf("coord_sets[[\"%s\"]] must have exactly 3 elements (x, y, z column names).", nm))
+        }
+        extra <- .project_coords(result, cols[1], cols[2], cols[3], angle_rad_h, dip_rad)
+        result[[paste0(nm, "_proj_x")]] <- extra$proj_x
+        if (!is.null(extra$proj_z)) result[[paste0(nm, "_proj_z")]] <- extra$proj_z
+    }
+
+    result
 }

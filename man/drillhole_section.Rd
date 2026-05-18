@@ -4,55 +4,118 @@
 \alias{drillhole_section}
 \title{Drillhole cross-section projection}
 \usage{
-drillhole_section(data, x = "mid_x", y = "mid_y", z = "mid_z", view_angle = 0)
+drillhole_section(
+  data,
+  x = "mid_x",
+  y = "mid_y",
+  z = "mid_z",
+  view_angle = 0,
+  dip_angle = 0,
+  coord_sets = NULL
+)
 }
 \arguments{
 \item{data}{Data frame containing drillhole coordinate and assay columns.}
 
-\item{x}{Name of the easting column (default \code{"x"}).}
+\item{x}{Name of the easting column (default \code{"mid_x"}).}
 
-\item{y}{Name of the northing column (default \code{"y"}).}
+\item{y}{Name of the northing column (default \code{"mid_y"}).}
 
-\item{z}{Name of the downhole column (default \code{"z"}).}
+\item{z}{Name of the downhole/elevation column (default \code{"mid_z"}).}
 
 \item{view_angle}{Viewing azimuth in degrees (default \code{0}).}
+
+\item{dip_angle}{Downward tilt of the viewing direction in degrees from
+horizontal (default \code{0}, positive = looking down). When non-zero a
+\code{proj_z} column (and \verb{\{name\}_proj_z} for each entry in \code{coord_sets}) is
+added. Setting this to the true dip of the target structure makes that
+structure appear edge-on (e.g. \code{dip_angle = 60} for a 60-deg-dipping
+lens).}
+
+\item{coord_sets}{Named list of additional coordinate triplets to project.
+Each element must be a character vector of length 3 giving
+\code{c(x_col, y_col, z_col)}. The projected columns are named
+\verb{\{name\}_proj_x} and (when \code{dip_angle != 0}) \verb{\{name\}_proj_z}. Example for
+\code{\link[=desurvey_holes]{desurvey_holes()}} output:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{coord_sets = list(
+  from = c("from_x", "from_y", "from_z"),
+  to   = c("to_x",   "to_y",   "to_z")
+)
+}\if{html}{\out{</div>}}}
 }
 \value{
-A tibble identical to \code{data} with one additional column \code{proj_x}.
+A tibble identical to \code{data} with \code{proj_x} appended for the primary
+triplet, \verb{\{name\}_proj_x} for each entry in \code{coord_sets}, and the
+corresponding \code{proj_z} / \verb{\{name\}_proj_z} columns when \code{dip_angle != 0}.
 }
 \description{
-Projects drillhole x/y coordinates onto a vertical section plane defined by
-a viewing angle and returns a tibble with a \code{proj_x} column appended. The
-result can be passed directly to \code{\link[=raster_section]{raster_section()}} or plotted manually with
-ggplot2.
+Projects drillhole coordinate columns onto a section plane defined by a
+viewing azimuth and an optional dip tilt, then returns a tibble with the
+projected columns appended. The result can be passed directly to
+\code{\link[=raster_section]{raster_section()}} or plotted manually with ggplot2.
 }
-\section{Projection}{
+\details{
+The primary coordinate triplet (\code{x}, \code{y}, \code{z}) is projected to \code{proj_x}
+(and \code{proj_z} when \code{dip_angle != 0}). Additional triplets supplied via
+\code{coord_sets} are projected to \verb{\{name\}_proj_x} (and \verb{\{name\}_proj_z}), which
+is useful for projecting the \code{from_x/y/z} and \code{to_x/y/z} columns produced
+by \code{\link[=desurvey_holes]{desurvey_holes()}}.
+}
+\section{Azimuth rotation}{
 
-For angles in the easting-dominant range (<= 45 deg or >= 315 deg, and 135-225 deg)
-the full rotation formula is used:
+\code{view_angle} rotates the horizontal coordinates around the vertical axis.
+For angles in the easting-dominant range (<= 45 deg or >= 315 deg, and
+135-225 deg) the standard rotation is used:
 \deqn{proj\_x = x \cos(\theta) - y \sin(\theta)}
 For angles in the northing-dominant range (45-135 deg and 225-315 deg) the
-formula is rotated 90 deg so that northing (\code{y}) is the primary axis:
+formula is adjusted so that northing (\code{y}) drives the horizontal axis:
 \deqn{proj\_x = x \cos(\theta) + y \sin(\theta)}
-This gives pure \code{y} at theta = 90 deg and pure \code{-y} at theta = 270 deg. A message is
-emitted whenever this branch is used.\tabular{ll}{
-   \code{view_angle} \tab \code{proj_x} \cr
-   0 / 360 \tab \code{x*cos(theta) - y*sin(theta)} -> x \cr
-   90 \tab \code{x*cos(theta) + y*sin(theta)} -> y (with message) \cr
-   180 \tab \code{x*cos(theta) - y*sin(theta)} -> -x \cr
-   270 \tab \code{x*cos(theta) + y*sin(theta)} -> -y (with message) \cr
+A message is emitted whenever this branch is used.
 }
+
+\section{Dip rotation}{
+
+When \code{dip_angle != 0} the viewing direction is tilted \strong{downward} by that
+angle (positive = looking down into the section). The perpendicular
+into-section distance is first computed:
+\deqn{proj\_y = x \sin(\theta) + y \cos(\theta)}
+The vertical coordinate is then projected onto the tilted view plane:
+\deqn{proj\_z = proj\_y \sin(\varphi) + z \cos(\varphi)}
+where \eqn{\varphi} is \code{dip_angle}. Because the gaze points downward,
+surface-level points behind the section (large \code{proj_y}, \code{z = 0}) appear
+\emph{above} the zero reference in the plot. Setting \code{dip_angle} to the true dip
+of the target structure makes that structure appear edge-on. Use \code{proj_z}
+(or \verb{\{name\}_proj_z}) on the vertical plot axis instead of the raw \code{z}
+column.
 }
 
 \examples{
 dh <- data.frame(
   hole_id = rep(c("DH-01", "DH-02"), each = 10),
-  mid_x       = rep(c(100, 200), each = 10),
-  mid_y       = rep(c(100, 150), each = 10),
-  mid_z       = rep(seq(0, 90, by = 10), 2),
+  mid_x   = rep(c(100, 200), each = 10),
+  mid_y   = rep(c(100, 150), each = 10),
+  mid_z   = rep(seq(0, -90, by = -10), 2),
+  from_x  = rep(c(100, 200), each = 10),
+  from_y  = rep(c(100, 150), each = 10),
+  from_z  = rep(seq(0, -90, by = -10), 2),
+  to_x    = rep(c(100, 200), each = 10),
+  to_y    = rep(c(100, 150), each = 10),
+  to_z    = rep(seq(-10, -100, by = -10), 2),
   Au_ppm  = runif(20)
 )
 
+# Standard vertical section (mid points only)
 drillhole_section(dh, view_angle = 45)
-drillhole_section(dh, view_angle = 90)   # switches to y projection
+
+# 3-D perspective + project from/to segment endpoints
+drillhole_section(
+  dh,
+  view_angle = 45,
+  dip_angle  = 30,
+  coord_sets = list(
+    from = c("from_x", "from_y", "from_z"),
+    to   = c("to_x",   "to_y",   "to_z")
+  )
+)
 }
