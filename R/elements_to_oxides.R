@@ -60,16 +60,16 @@ elements_to_oxides <- function(data) {
   fe2o3 <- 2 * fe + 3 * o
 
   # element to oxide ratio
-  na_x <- 2 * na / na2o
+  na_x <- na / na2o
   mg_x <- mg / mgo
-  al_x <- 2 * al / al2o3
+  al_x <- al / al2o3
   si_x <- si / sio2
-  p_x <- 2 * p / p2o5
-  k_x <- 2 * k / k2o
+  p_x <- p / p2o5
+  k_x <- k / k2o
   ti_x <- ti / tio2
-  cr_x <- 2 * cr / cr2o3
+  cr_x <- cr / cr2o3
   mn_x <- mn / mno
-  fe_x <- 2 * fe / fe2o3
+  fe_x <- fe / fe2o3
 
   result <- data |>
     dplyr::rename_with(tolower) |>
