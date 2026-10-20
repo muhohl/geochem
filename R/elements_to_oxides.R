@@ -46,10 +46,12 @@ elements_to_oxides <- function(data) {
   cr <- 51.996
   mn <- 54.938
   fe <- 55.845
+  ca <- 40.078
 
  # Define oxide masses
   na2o <- 2 * na + o
   mgo <- mg + o
+  cao <- ca + o
   al2o3 <- 2 * al + 3 * o
   sio2 <- si + 2 * o
   p2o5 <- 2 * p + 5 * o
@@ -62,6 +64,7 @@ elements_to_oxides <- function(data) {
   # element to oxide ratio
   na_x <- na / na2o
   mg_x <- mg / mgo
+  ca_x <- ca / cao
   al_x <- al / al2o3
   si_x <- si / sio2
   p_x <- p / p2o5
@@ -77,14 +80,13 @@ elements_to_oxides <- function(data) {
       c(
         "na_pct",
         "mg_pct",
-        "mg_pct",
+        "ca_pct",
         "al_pct",
         "si_pct",
         "p_pct",
         "k_pct",
         "ti_pct",
         "cr_pct",
-        "mn_pct",
         "mn_pct",
         "fe_pct"
       )
@@ -100,6 +102,8 @@ elements_to_oxides <- function(data) {
           out <- val / na_x
         } else if (stringr::str_detect(col, "mg")) {
           out <- val / mg_x
+        } else if (stringr::str_detect(col, "ca")) {
+          out <- val / ca_x
         } else if (stringr::str_detect(col, "al")) {
           out <- val / al_x
         } else if (stringr::str_detect(col, "si")) {
@@ -124,6 +128,7 @@ elements_to_oxides <- function(data) {
         name <- dplyr::case_when(
           stringr::str_detect(col, "na") ~ "na2o_pct",
           stringr::str_detect(col, "mg") ~ "mgo_pct",
+          stringr::str_detect(col, "ca") ~ "cao_pct",
           stringr::str_detect(col, "al") ~ "al2o3_pct",
           stringr::str_detect(col, "si") ~ "sio2_pct",
           stringr::str_detect(col, "p_pct") ~ "p2o5_pct",
