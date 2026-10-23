@@ -232,3 +232,13 @@ patchwork::wrap_plots(maps[1:2])
 
 For full documentation and worked examples see
 `vignette("introduction", package = "geochem")`.
+
+## Citation
+
+If you use geochem in your work, please cite it. Run `citation("geochem")` in
+R, or use the "Cite this repository" button on GitHub for APA and BibTeX
+formats.
+
+> Hohl, M. (2026). *geochem: Wrangling, Analysing, and Visualization of
+> Geochemical Data* (R package version 0.0.0.9000).
+> https://github.com/muhohl/geochem

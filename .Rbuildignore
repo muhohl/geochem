@@ -5,3 +5,4 @@
 ^README\.html$
 ^Rplots\.pdf$
 ^data-raw$
+^CITATION\.cff$
