@@ -240,5 +240,5 @@ R, or use the "Cite this repository" button on GitHub for APA and BibTeX
 formats.
 
 > Hohl, M. (2026). *geochem: Wrangling, Analysing, and Visualization of
-> Geochemical Data* (R package version 0.1.0).
+> Geochemical Data* (R package version 0.1.1).
 > https://github.com/muhohl/geochem
