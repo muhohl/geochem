@@ -4,5 +4,6 @@ bibentry(
   author = person("Max", "Hohl", comment = c(ORCID = "0000-0003-1167-541X")),
   year = "2026",
   note = paste("R package version", meta$Version),
-  url = "https://github.com/muhohl/geochem"
+  url = "https://github.com/muhohl/geochem",
+  doi = "10.5281/zenodo.23601785"
 )

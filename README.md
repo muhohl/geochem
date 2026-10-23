@@ -5,6 +5,7 @@
 
 <!-- badges: start -->
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23601785.svg)](https://doi.org/10.5281/zenodo.23601785)
 <!-- badges: end -->
 
 **geochem** is an R package for wrangling, analysing, and visualising
@@ -240,5 +241,5 @@ R, or use the "Cite this repository" button on GitHub for APA and BibTeX
 formats.
 
 > Hohl, M. (2026). *geochem: Wrangling, Analysing, and Visualization of
-> Geochemical Data* (R package version 0.1.1).
-> https://github.com/muhohl/geochem
+> Geochemical Data* (R package version 0.1.1). Zenodo.
+> https://doi.org/10.5281/zenodo.23601785
