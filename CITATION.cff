@@ -10,7 +10,7 @@ authors:
   - given-names: Max
     family-names: Hohl
     orcid: "https://orcid.org/0000-0003-1167-541X"
-version: 0.0.0.9000
+version: 0.1.0
 license: MIT
 repository-code: "https://github.com/muhohl/geochem"
 url: "https://github.com/muhohl/geochem"

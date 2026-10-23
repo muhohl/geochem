@@ -1,6 +1,6 @@
 Package: geochem
 Title: Wrangling, Analysing, And Visualization Of Geochemical Data
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     person(given = "Max",
            family = "Hohl",
